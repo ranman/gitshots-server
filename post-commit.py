@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# this is an awesome githook by randall at 4am.
 import os
 import subprocess
 import time
