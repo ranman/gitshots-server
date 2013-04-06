@@ -6,7 +6,7 @@ import time
 from datetime import datetime
 from pymongo import MongoClient
 from bson import binary
-host = ''
+host = 'localhost'
 port = 27017
 database = 'gitscraper'
 auth = ('gitscraper', 'gitscraper')
