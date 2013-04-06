@@ -45,3 +45,4 @@ stats = stats.split('\n')
 dstats = [dict(zip(['+', '-', 'f'], line.split('\t'))) for line in stats][:-1]
 data['dstats'] = dstats
 db.gitshots.insert(data)
+print "Data pushed"
