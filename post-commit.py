@@ -24,7 +24,7 @@ author = 'ranman'
 db = MongoClient(host=host, port=port)[database]
 db.authenticate(*auth)
 
-
+print "Taking capture into {0}...".format(imgpath)
 subprocess.check_output(img_command.split(' '), shell=False)
 data = dict()
 with open(imgpath, 'rb') as f:
