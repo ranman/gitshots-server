@@ -7,10 +7,10 @@ import time
 from datetime import datetime
 from pymongo import MongoClient
 from bson import binary
-host = 'localhost'
+host = 'mercury.ranman.org'
 port = 27017
-database = 'gitscraper'
-auth = ('gitscraper', 'gitscraper')
+database = 'gitstreamer'
+auth = ('gitstreamer', 'gitstreamer')
 gitshots_path = '~/.gitshots/'
 # must have space at end
 img_command = 'imagesnap -q '
