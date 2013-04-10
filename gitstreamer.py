@@ -1,6 +1,19 @@
 import os
-from flask import Flask, render_template, send_from_directory, make_response
+from flask import Flask, render_template, send_from_directory, make_response, \
+    request, Response
 from flask.ext.pymongo import PyMongo
+from bson.json_util import dumps
+
+
+def request_wants_json():
+    jsonstr = 'application/json'
+    best = request.accept_mimetypes.best_match([jsonstr, 'text/html'])
+    return best == jsonstr and \
+        request.accept_mimetypes[best] > request.accept_mimetypes['text/html']
+
+
+def jsonify(*args, **kwargs):
+    return Response(dumps(dict(*args, **kwargs)), mimetype='application/json')
 
 app = Flask(__name__)
 app.config.update(
@@ -40,7 +53,9 @@ def render_image(gitshot_id):
 
 @app.route('/user/<username>')
 def user_profile(username):
-    gitshots = mongo.db.users.find({'author': username}, {'img': False})
+    gitshots = mongo.db.gitshots.find({'author': username}, {'img': False})
+    if request_wants_json():
+        return jsonify(items=[gitshot for gitshot in gitshots])
     return render_template('user.html', gitshots=gitshots)
 
 

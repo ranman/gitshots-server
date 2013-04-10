@@ -1,0 +1,11 @@
+<!doctype html>
+<html>
+<head>
+	<title>User -- {{username}}</title>
+</head>
+<body>
+	{% for gitshot in gitshots %}
+		<img src="/img/{{gitshot._id}}">
+	{% endfor %}
+</body>
+</html>
