@@ -1,7 +1,12 @@
 import os
+from collections import defaultdict
+
 from flask import Flask, render_template, send_from_directory, make_response, \
     request, Response
+
 from flask.ext.pymongo import PyMongo
+from flask.ext.cache import Cache
+
 from bson.json_util import dumps
 
 
@@ -24,8 +29,11 @@ app.config.update(
     MONGO_HOST='localhost',
     MONGO_PORT=27017,
     MONGO_USERNAME='gitstreamer',
-    MONGO_PASSWORD='gitstreamer'
+    MONGO_PASSWORD='gitstreamer',
+    CACHE_TYPE='filesystem',
+    CACHE_DIR='static/imgs'
 )
+cache = Cache(app)
 mongo = PyMongo(app)
 
 
@@ -41,6 +49,7 @@ def page_not_found(e):
 
 
 @app.route('/img/<ObjectId:gitshot_id>')
+@cache.memoize(3600)  # cache for 1 hour
 def render_image(gitshot_id):
     img = mongo.db.gitshots.find_one_or_404(gitshot_id, {'img': True})['img']
 
@@ -56,7 +65,10 @@ def user_profile(username):
     gitshots = mongo.db.gitshots.find({'author': username}, {'img': False})
     if request_wants_json():
         return jsonify(items=[gitshot for gitshot in gitshots])
-    return render_template('user.html', gitshots=gitshots)
+    ret = defaultdict(list)
+    for gitshot in gitshots:
+        ret[gitshot['project']].append(gitshot)
+    return render_template('user.html', gitshots=ret)
 
 
 @app.route('/')
