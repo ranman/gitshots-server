@@ -2,6 +2,7 @@
 # this is an awesome githook by randall at 4am.
 # now to get back to real work
 import os
+import getpass
 import subprocess
 import time
 from datetime import datetime
@@ -18,8 +19,7 @@ img_command = 'imagesnap -q '
 filename = str(time.mktime(datetime.now().timetuple()))[:10] + '.jpg'
 imgpath = os.path.abspath(os.path.expanduser(gitshots_path + filename))
 img_command = img_command + imgpath
-# ??? BUG: better way to get this?
-author = 'ranman'
+author = getpass.getuser()
 
 db = MongoClient(host=host, port=port)[database]
 db.authenticate(*auth)
