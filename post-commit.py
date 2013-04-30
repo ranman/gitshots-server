@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.7
 # this is an awesome githook by randall at 4am.
 # now to get back to real work
 import os
