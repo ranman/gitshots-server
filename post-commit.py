@@ -40,13 +40,14 @@ stats = subprocess.check_output(['git', 'diff', 'HEAD~1', '--numstat'])
 stats = stats.split('\n')
 dstats = [dict(zip(['+', '-', 'f'], line.split('\t'))) for line in stats][:-1]
 data['dstats'] = dstats
+data = json.dumps(data)
 response = requests.post(
     server_url + '/post_image',
     files={'photo': ('photo', img)}
 )
 print "Image pushed: {0}".format(response.text)
 response = requests.put(
-    server_url + 'put_commit/' + response.text,
-    data=json.dumps(data)
+    server_url + '/put_commit/' + response.text,
+    data=data
 )
 print "Data pushed: {0}".format(response.text)
