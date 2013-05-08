@@ -88,8 +88,7 @@ def render_image(gitshot_id):
         img = gitshot['img']
         return make_response(wsgi_app)
     else:
-        img = open('static/no_image.jpg')
-        return make_response(wsgi_app)
+        return "No Image"
 
 
 @app.route('/user/<username>')
