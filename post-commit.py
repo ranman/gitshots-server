@@ -11,6 +11,7 @@ from datetime import datetime
 
 
 gitshots_path = '~/.gitshots/'
+server_url = 'http://gitshots.ranman.org'
 # must have space at end
 img_command = 'imagesnap -q '
 # filename is unix epoch time
@@ -40,12 +41,12 @@ stats = stats.split('\n')
 dstats = [dict(zip(['+', '-', 'f'], line.split('\t'))) for line in stats][:-1]
 data['dstats'] = dstats
 response = requests.post(
-    'http://127.0.0.1:5000/post_image',
+    server_url + '/post_image',
     files={'photo': ('photo', img)}
 )
 print "Image pushed: {0}".format(response.text)
 response = requests.put(
-    'http://127.0.0.1:5000/post_commit/' + response.text,
+    server_url + 'put_commit/' + response.text,
     data=json.dumps(data)
 )
 print "Data pushed: {0}".format(response.text)

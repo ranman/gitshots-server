@@ -60,8 +60,15 @@ def post_image():
     return 400
 
 
-@app.route('/post_commit/<ObjectId:gitshot_id>', methods=['PUT'])
+@app.route('/post_commit', methods=['POST'])
 def post_commit(gitshot_id):
+    data = loads(request.data)
+    data['ts'] = datetime.fromtimestamp(data['ts'])
+    return str(mongo.db.gitshots.save(data))
+
+
+@app.route('/put_commit/<ObjectId:gitshot_id>', methods=['PUT'])
+def put_commit(gitshot_id):
     data = loads(request.data)
     data['ts'] = datetime.fromtimestamp(data['ts'])
     gitshot = mongo.db.gitshots.find_one_or_404(gitshot_id)
