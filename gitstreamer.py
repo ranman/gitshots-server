@@ -76,7 +76,7 @@ def put_commit(gitshot_id):
     return str(mongo.db.gitshots.save(gitshot))
 
 
-@app.route('/img/<ObjectId:gitshot_id>')
+@app.route('/img/<ObjectId:gitshot_id>.jpg')
 @cache.memoize(3600)  # cache for 1 hour
 def render_image(gitshot_id):
     def wsgi_app(environ, start_response):
@@ -88,7 +88,8 @@ def render_image(gitshot_id):
         img = gitshot['img']
         return make_response(wsgi_app)
     else:
-        return "No Image"
+        img = open('static/no_image.jpg').read()
+        return make_response(wsgi_app)
 
 
 @app.route('/user/<username>')
