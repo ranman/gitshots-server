@@ -51,12 +51,14 @@
 </head>
 <body>
   {% for project, shots in gitshots.iteritems() %}
-    <h1>{{project}}</h1>
-    <section class="photos">
-      {% for shot in shots %}
-        <img src="/img/{{shot._id}}" title="{{shot.msg}}">
-      {% endfor %}
-    </section>
+    {% if shots|length != 0 %}
+      <h1>{{project}}</h1>
+      <section class="photos">
+        {% for shot in shots %}
+          <img src="/img/{{shot._id}}" title="{{shot.msg}}">
+        {% endfor %}
+      </section>
+    {% endif %}
   {% endfor %}
 <script>
 </script>
