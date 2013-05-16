@@ -116,8 +116,9 @@ def project(project):
 
 @app.route('/')
 def index():
-    gitshots = mongo.db.gitshots.find({}, {'img': False})
-    return render_template('index.html', gitshots=gitshots)
+    projects = mongo.db.gitshots.distinct('project')
+    users = mongo.db.gitshots.distinct('author')
+    return render_template('index.html', projects=projects, users=users)
 
 if __name__ == "__main__":
     app.run()
