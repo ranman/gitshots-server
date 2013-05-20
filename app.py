@@ -7,13 +7,12 @@ from flask import (
     render_template,
     make_response,
     request,
-    Response,
     jsonify
 )
 
 from flask.ext.pymongo import PyMongo
 from flask.ext.cache import Cache
-from bson.json_util import dumps, loads
+from bson.json_util import loads
 from bson import binary
 import Image
 

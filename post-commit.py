@@ -10,7 +10,11 @@ import json
 import requests
 from datetime import datetime
 
-from config import *
+from config import (
+    GITSHOTS_PATH,
+    GITSHOTS_IMAGE_CMD,
+    GITSHOTS_SERVER_URL
+)
 
 # filename is unix epoch time
 filename = str(time.mktime(datetime.now().timetuple()))[:10] + '.jpg'
