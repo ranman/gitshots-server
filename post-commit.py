@@ -9,12 +9,10 @@ import time
 import json
 import requests
 from datetime import datetime
-
-from config import (
-    GITSHOTS_PATH,
-    GITSHOTS_IMAGE_CMD,
-    GITSHOTS_SERVER_URL
-)
+GITSHOTS_PATH = '~/.gitshots/'
+GITSHOTS_SERVER_URL = os.environ.get(
+    'GITSHOTS_SERVER_URL', 'http://gitshots.ranman.org')
+GITSHOTS_IMAGE_CMD = 'imagesnap -q '
 
 # filename is unix epoch time
 filename = str(time.mktime(datetime.now().timetuple()))[:10] + '.jpg'
