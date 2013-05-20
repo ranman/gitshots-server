@@ -13,4 +13,8 @@ CACHE_DIR = 'static/imgs'
 
 UPLOAD_FOLDER = 'uploads'
 
-MAX_CONTENT_LENGTH = 4 * 1024 * 1024  # No more than 4MB per filesystem
+GITSHOTS_PATH = '~/.gitshots/'
+GITSHOTS_SERVER_URL = os.environ.get('GITSHOTS_SERVER_URL', 'http://localhost:5000')
+GITSHOTS_IMAGE_CMD = 'imagesnap -q '
+
+MAX_CONTENT_LENGTH = 4 * 1024 * 1024  # No more than 4MB per file system
