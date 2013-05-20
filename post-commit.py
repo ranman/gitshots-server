@@ -1,6 +1,7 @@
-#!/usr/bin/env python2.7
-# this is an awesome githook by randall at 4am.
-# now to get back to real work
+# !/usr/bin/env python2.7
+# this is an awesome githook created by randall at 4am.
+# it has since been added to by jessepollak
+
 import os
 import getpass
 import subprocess
@@ -9,20 +10,19 @@ import json
 import requests
 from datetime import datetime
 
+from config import *
 
-gitshots_path = '~/.gitshots/'
-server_url = 'http://gitshots.ranman.org'
-# must have space at end
-img_command = 'imagesnap -q '
 # filename is unix epoch time
 filename = str(time.mktime(datetime.now().timetuple()))[:10] + '.jpg'
-imgpath = os.path.abspath(os.path.expanduser(gitshots_path + filename))
-img_command = img_command + imgpath
+imgpath = os.path.abspath(os.path.expanduser(GITSHOTS_PATH + filename))
+img_command = GITSHOTS_IMAGE_CMD + imgpath
 author = getpass.getuser()
 
 print "Taking capture into {0}...".format(imgpath)
 subprocess.check_output(img_command.split(' '), shell=False)
+
 data = dict()
+
 with open(imgpath, 'rb') as f:
     img = f.read()
 
@@ -42,12 +42,12 @@ dstats = [dict(zip(['+', '-', 'f'], line.split('\t'))) for line in stats][:-1]
 data['dstats'] = dstats
 data = json.dumps(data)
 response = requests.post(
-    server_url + '/post_image',
+    GITSHOTS_SERVER_URL + '/post_image',
     files={'photo': ('photo', img)}
 )
 print "Image pushed: {0}".format(response.text)
 response = requests.put(
-    server_url + '/put_commit/' + response.text,
+    GITSHOTS_SERVER_URL + '/put_commit/' + response.text,
     data=data
 )
 print "Data pushed: {0}".format(response.text)
