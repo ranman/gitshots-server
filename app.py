@@ -2,7 +2,15 @@ import cStringIO
 from datetime import datetime
 from collections import defaultdict
 
-from flask import Flask, render_template, make_response, request, Response
+from flask import (
+    Flask,
+    render_template,
+    make_response,
+    request,
+    Response,
+    jsonify
+)
+
 from flask.ext.pymongo import PyMongo
 from flask.ext.cache import Cache
 from bson.json_util import dumps, loads
@@ -17,24 +25,9 @@ def request_wants_json():
         request.accept_mimetypes[best] > request.accept_mimetypes['text/html']
 
 
-def jsonify(*args, **kwargs):
-    return Response(dumps(dict(*args, **kwargs)), mimetype='application/json')
-
 app = Flask(__name__)
-app.config.update(
-    DEBUG=True,
-    HOST='0.0.0.0',
-    PORT=8080,
-    MONGO_DBNAME='gitstreamer',
-    MONGO_HOST='localhost',
-    MONGO_PORT=27017,
-    MONGO_USERNAME='gitstreamer',
-    MONGO_PASSWORD='gitstreamer',
-    CACHE_TYPE='filesystem',
-    CACHE_DIR='static/imgs',
-    UPLOAD_FOLDER='uploads',
-    MAX_CONTENT_LENGTH=4 * 1024 * 1024  # No more than 4MB per file
-)
+app.config.from_object('config')
+
 cache = Cache(app)
 mongo = PyMongo(app)
 
@@ -54,8 +47,7 @@ def post_image():
         img.thumbnail((300, 300))
         imgbuf = cStringIO.StringIO()
         img.save(imgbuf, format='JPEG')
-        gitshot = dict()
-        gitshot['img'] = binary.Binary(imgbuf.getvalue())
+        gitshot = dict(img=binary.Binary(imgbuf.getvalue()))
         return str(mongo.db.gitshots.insert(gitshot))
     return 400
 
@@ -119,6 +111,7 @@ def index():
     projects = mongo.db.gitshots.distinct('project')
     users = mongo.db.gitshots.distinct('author')
     return render_template('index.html', projects=projects, users=users)
+
 
 if __name__ == "__main__":
     app.run()
