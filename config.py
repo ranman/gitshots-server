@@ -4,7 +4,7 @@ DEBUG = True
 
 MONGO_DBNAME = os.environ.get('MONGO_DB', 'gitshots')
 MONGO_HOST = os.environ.get('MONGO_HOST', 'localhost')
-MONGO_PORT = os.environ.get('MONGO_POST', 27017)
+MONGO_PORT = os.environ.get('MONGO_PORT', 27017)
 MONGO_USERNAME = os.environ.get('MONGO_USERNAME', None)
 MONGO_PASSWORD = os.environ.get('MONGO_PASSWORD', None)
 
