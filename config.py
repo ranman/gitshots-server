@@ -2,7 +2,6 @@ import os
 
 DEBUG = True
 
-MONGO_URI = os.environ.get('MONGOHQ_URL', None)
 MONGO_DBNAME = os.environ.get('MONGO_DB', 'gitshots')
 MONGO_HOST = os.environ.get('MONGO_HOST', 'localhost')
 MONGO_PORT = os.environ.get('MONGO_POST', 27017)
