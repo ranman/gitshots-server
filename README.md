@@ -23,11 +23,13 @@ First, add the following line to your `.bash_profile` or `.bashrc`. If you don't
 
 Next, in any repository that you want gitshots, you need to add the following line to your `.git/hooks/post-commit` file (if you don't have one, create one):
 
-    python PATH_TO_GITSHOTS_REPO/post-commit.py
+    /usr/bin/env python2.7 PATH_TO_GITSHOTS_REPO/post-commit.py
 
 An easy way to ensure your gitshots take for every new repository you create in the future is to add the following file at `/usr/share/git-core/templates/hooks/post-commit` or `/usr/local/share/git-core/templates/hooks/post-commit` depending on your installation of git.
 
     #!/bin/sh
 
     # takes a gitshot on every commit
-    python  PATH_TO_GITSHOTS_REPO/post-commit.py
+    /usr/bin/env python2.7 PATH_TO_GITSHOTS_REPO/post-commit.py
+
+Be sure to mark both of these files as executable: 'chmod +x post-commit'
