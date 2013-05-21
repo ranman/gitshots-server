@@ -14,6 +14,7 @@ from flask.ext.pymongo import PyMongo
 from flask.ext.cache import Cache
 from bson.json_util import loads
 from bson import binary
+from bson.code import Code
 import Image
 
 
@@ -105,10 +106,24 @@ def project(project):
     return render_template('project.html', gitshots=ret)
 
 
+fn = Code(
+    """
+        function(obj, prev) {
+            prev.documents.push(obj)
+        }
+    """
+)
+
 @app.route('/')
 def index():
-    projects = mongo.db.gitshots.distinct('project')
-    users = mongo.db.gitshots.distinct('author')
+    projects, users = dict(), dict()
+    project_names = mongo.db.gitshots.distinct('project')
+    user_names = mongo.db.gitshots.distinct('author')
+    for u in user_names:
+        users[u] = list(mongo.db.gitshots.find({"author": u}, fields={"_id": 1, "msg": 1}, limit=10))
+    for p in project_names:
+        projects[p] = list(mongo.db.gitshots.find({"project": p}, fields={"_id": 1, "msg": 1}, limit=10))
+
     return render_template('index.html', projects=projects, users=users)
 
 
