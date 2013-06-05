@@ -42,4 +42,4 @@ An easy way to ensure your gitshots take for every new repository you create in 
     # takes a gitshot on every commit
     /usr/bin/env python2.7 PATH_TO_GITSHOTS_REPO/post-commit.py
 
-Be sure to mark both of these files as executable: 'chmod +x post-commit'
+Be sure to mark both of these files as executable: `chmod +x post-commit`
