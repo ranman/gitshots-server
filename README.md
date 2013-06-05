@@ -21,6 +21,14 @@ First, add the following line to your `.bash_profile` or `.bashrc`. If you don't
 
     export GITSHOTS_SERVER_URL=<your gitshots server url>
 
+Next, you'll need to make sure you have `python2.7` and the `requests` library:
+
+    pip install requests
+
+Next, you'll need to make sure you have `imagesnap`, on OSX you can easily install it with [homebrew](http://mxcl.github.io/homebrew/):
+
+    brew install imagesnap
+
 Next, in any repository that you want gitshots, you need to add the following line to your `.git/hooks/post-commit` file (if you don't have one, create one):
 
     /usr/bin/env python2.7 PATH_TO_GITSHOTS_REPO/post-commit.py

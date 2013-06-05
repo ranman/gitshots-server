@@ -14,6 +14,10 @@ GITSHOTS_SERVER_URL = os.environ.get(
     'GITSHOTS_SERVER_URL', 'http://gitshots.ranman.org')
 GITSHOTS_IMAGE_CMD = 'imagesnap -q '
 
+# ensure directory exists
+if not os.path.exists(os.path.expanduser(GITSHOTS_PATH)):
+    os.makedirs(os.path.expanduser(GITSHOTS_PATH))
+
 # filename is unix epoch time
 filename = str(time.mktime(datetime.now().timetuple()))[:10] + '.jpg'
 imgpath = os.path.abspath(os.path.expanduser(GITSHOTS_PATH + filename))
