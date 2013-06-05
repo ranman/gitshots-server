@@ -13,6 +13,8 @@ Setting up your own Gitshots server is as easy as deploying to Heroku (just copy
 
 If you don't want to set up your own Gitshots server, feel free to use [ranman's](http://gitshots.ranman.org) (it's the default).
 
+If you'd rather not post to Gitshots in general, just record to disk, set the GITSHOTS_SERVER_URL to `False`
+
 ## Taking a gitshot on every commit
 
 With your Gitshots server setup, you need to configure your computer to take gitshots.

@@ -46,14 +46,19 @@ stats = subprocess.check_output(['git', 'diff', 'HEAD~1', '--numstat'])
 stats = stats.split('\n')
 dstats = [dict(zip(['+', '-', 'f'], line.split('\t'))) for line in stats][:-1]
 data['dstats'] = dstats
-data = json.dumps(data)
-response = requests.post(
-    GITSHOTS_SERVER_URL + '/post_image',
-    files={'photo': ('photo', img)}
-)
-print "Image pushed: {0}".format(response.text)
-response = requests.put(
-    GITSHOTS_SERVER_URL + '/put_commit/' + response.text,
-    data=data
-)
-print "Data pushed: {0}".format(response.text)
+
+with open(imgpath[:-3]+"json", 'w') as f:
+    json.dump(data, f)
+
+if GITSHOTS_SERVER_URL:
+    data = json.dumps(data)
+    response = requests.post(
+        GITSHOTS_SERVER_URL + '/post_image',
+        files={'photo': ('photo', img)}
+    )
+    print "Image pushed: {0}".format(response.text)
+    response = requests.put(
+        GITSHOTS_SERVER_URL + '/put_commit/' + response.text,
+        data=data
+    )
+    print "Data pushed: {0}".format(response.text)
