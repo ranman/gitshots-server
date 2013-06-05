@@ -47,7 +47,7 @@ stats = stats.split('\n')
 dstats = [dict(zip(['+', '-', 'f'], line.split('\t'))) for line in stats][:-1]
 data['dstats'] = dstats
 
-with open(imgpath[:-3]+"json", 'w') as f:
+with open(imgpath[:-3] + "json", 'w') as f:
     json.dump(data, f)
 
 if GITSHOTS_SERVER_URL:
