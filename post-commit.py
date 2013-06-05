@@ -3,6 +3,7 @@
 # it has since been added to by jessepollak
 
 import os
+import io
 import getpass
 import subprocess
 import time
@@ -21,6 +22,7 @@ if not os.path.exists(os.path.expanduser(GITSHOTS_PATH)):
 # filename is unix epoch time
 filename = str(time.mktime(datetime.now().timetuple()))[:10] + '.jpg'
 imgpath = os.path.abspath(os.path.expanduser(GITSHOTS_PATH + filename))
+# this may need to change
 img_command = GITSHOTS_IMAGE_CMD + imgpath
 author = getpass.getuser()
 
@@ -45,16 +47,19 @@ data = {
 }
 
 # diff stats
-stats = subprocess.check_output(['git', 'diff', 'HEAD~1', '--numstat'])
+stats = subprocess.check_output('git diff HEAD~1 --numstat'.split())
 stats = stats.split('\n')
+# split them up by number of lines added, removed, and the filename
+# then chop off the blank line at the end [:-1]
 dstats = [dict(zip(['+', '-', 'f'], line.split('\t'))) for line in stats][:-1]
 data['dstats'] = dstats
 
-with open(imgpath[:-3] + "json", 'w') as f:
-    json.dump(data, f)
+# chop off the jpg extensions and add json instead (ensure unicode)
+with io.open(imgpath[:-3] + 'json', 'w', encoding='utf-8') as f:
+    f.write(unicode(json.dumps(data, ensure_ascii=False)))
 
 if GITSHOTS_SERVER_URL:
-    data = json.dumps(data)
+    data = json.dumps(data, ensure_ascii=False)
     response = requests.post(
         GITSHOTS_SERVER_URL + '/post_image',
         files={'photo': ('photo', img)}
