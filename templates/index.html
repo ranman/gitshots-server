@@ -1,26 +1,48 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>Git Shots</h1>
+    <div class="header">
+        <h1>Git Shots</h1>
+        <h3>Remember every commit</h3>
+    </div>
     <div class="row-fluid">
-    <h3>What the hell is this?</h3>
-    <p>You install this: <a href="/post-commit.py">post-commit.py</a> with a command like this:
-    <code>ln -sf post-commit.py /usr/local/share/git-core/templates/hooks/post-commit</code>
-    you'll also want to <code>chmod +x</code> that stuff, <code>git init</code>, and maybe change some files around... I am not going to tell you how to do this.</p>
 
     <div class="row-fluid">
-        <div class="span6">
+        <div class="span6 projects">
             <h2>Projects</h2>
             <ul>
             {% for project in projects %}
-                <li><a href="/project/{{project}}">{{project}}</a></li>
+                <li class="project">
+                    <div class='cycler'>
+                        <a href="/project/{{project}}">
+                            <h2>{{project}}</h2>
+                            <div class='images'>
+                                {% for shot in projects[project] %}
+                                    <span style="background-image: url('/img/{{shot._id}}.jpg');" title="{{shot.msg}}" class="thumbnail"></span>
+                                {% endfor %}
+                            </div>
+                        </a>
+                    </div>
+                </li>
             {% endfor %}
             </ul>
         </div>
-        <div class="span6">
+        <div class="span6 users">
             <h2>Users</h2>
             <ul>
             {% for user in users %}
-                <li><a href="/user/{{user}}">{{user}}</a></li>
+                <li class="user">
+                    <div class="cycler">
+                        <a href="/user/{{user}}">
+                            <h2>{{user}}</h2>
+                            <div class='images'>
+                                {% for shot in users[user] %}
+                                    <span style="background-image: url('/img/{{shot._id}}.jpg');" title="{{shot.msg}}" class="thumbnail"></span>
+                                {% endfor %}
+                            </div>
+                        </a>
+                    </div>
+
+                </li>
             {% endfor %}
             </ul>
         </div>
