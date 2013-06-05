@@ -14,6 +14,10 @@ GITSHOTS_SERVER_URL = os.environ.get(
     'GITSHOTS_SERVER_URL', 'http://gitshots.ranman.org')
 GITSHOTS_IMAGE_CMD = 'imagesnap -q '
 
+# ensure directory exists
+if not os.path.exists(os.path.expanduser(GITSHOTS_PATH)):
+    os.makedirs(os.path.expanduser(GITSHOTS_PATH))
+
 # filename is unix epoch time
 filename = str(time.mktime(datetime.now().timetuple()))[:10] + '.jpg'
 imgpath = os.path.abspath(os.path.expanduser(GITSHOTS_PATH + filename))
@@ -42,14 +46,19 @@ stats = subprocess.check_output(['git', 'diff', 'HEAD~1', '--numstat'])
 stats = stats.split('\n')
 dstats = [dict(zip(['+', '-', 'f'], line.split('\t'))) for line in stats][:-1]
 data['dstats'] = dstats
-data = json.dumps(data)
-response = requests.post(
-    GITSHOTS_SERVER_URL + '/post_image',
-    files={'photo': ('photo', img)}
-)
-print "Image pushed: {0}".format(response.text)
-response = requests.put(
-    GITSHOTS_SERVER_URL + '/put_commit/' + response.text,
-    data=data
-)
-print "Data pushed: {0}".format(response.text)
+
+with open(imgpath[:-3]+"json", 'w') as f:
+    json.dump(data, f)
+
+if GITSHOTS_SERVER_URL:
+    data = json.dumps(data)
+    response = requests.post(
+        GITSHOTS_SERVER_URL + '/post_image',
+        files={'photo': ('photo', img)}
+    )
+    print "Image pushed: {0}".format(response.text)
+    response = requests.put(
+        GITSHOTS_SERVER_URL + '/put_commit/' + response.text,
+        data=data
+    )
+    print "Data pushed: {0}".format(response.text)
