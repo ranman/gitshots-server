@@ -27,20 +27,23 @@ author = getpass.getuser()
 print "Taking capture into {0}...".format(imgpath)
 subprocess.check_output(img_command.split(' '), shell=False)
 
-data = dict()
-
 with open(imgpath, 'rb') as f:
     img = f.read()
 
-data['author'] = author
-# timestamp
-data['ts'] = int(filename[:10])
-# grab commit message and chop off the last newline
-data['msg'] = subprocess.check_output(
-    ["git", "log", "-n", "1", "HEAD", "--format=format:%s%n%b"],
-    shell=False).rstrip()
-# project name or document
-data['project'] = os.path.basename(os.getcwd())
+data = {
+    'author': author,
+    # get the timestamp
+    'ts': int(filename[:10]),
+    # grab commit message and chop off the last newline
+    'msg': subprocess.check_output(
+        'git log -n 1 HEAD --format=format:%s%n%b'.split(),
+        shell=False).rstrip(),
+    # get the shaw 1 of this commit
+    'sha1': subprocess.check_output('git rev-parse HEAD'.split(), shell=False),
+    # project name or document
+    'project': os.path.basename(os.getcwd()),
+}
+
 # diff stats
 stats = subprocess.check_output(['git', 'diff', 'HEAD~1', '--numstat'])
 stats = stats.split('\n')
