@@ -62,7 +62,7 @@ data['dstats'] = dstats
 with io.open(imgpath[:-3] + 'json', 'w', encoding='utf-8') as f:
     f.write(unicode(json.dumps(data, ensure_ascii=False)))
 
-if GITSHOTS_SERVER_URL:
+if GITSHOTS_SERVER_URL and GITSHOTS_SERVER_URL.lower() != "false":
     data = json.dumps(data, ensure_ascii=False)
     response = requests.post(
         GITSHOTS_SERVER_URL + '/post_image',
