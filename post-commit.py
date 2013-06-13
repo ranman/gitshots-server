@@ -8,8 +8,12 @@ import getpass
 import subprocess
 import time
 import json
+import sys
 import requests
 from datetime import datetime
+if os.fork():
+    sys.exit()
+
 GITSHOTS_PATH = '~/.gitshots/'
 GITSHOTS_SERVER_URL = os.environ.get(
     'GITSHOTS_SERVER_URL', 'http://gitshots.ranman.org')
@@ -47,7 +51,7 @@ data = {
 }
 
 # diff stats
-stats = subprocess.check_output('git diff HEAD~1 --numstat'.split())
+stats = subprocess.check_output('git diff HEAD~1 --numstat'.split(), shell=False)
 stats = stats.split('\n')
 # split them up by number of lines added, removed, and the filename
 # then chop off the blank line at the end [:-1]
@@ -64,9 +68,9 @@ if GITSHOTS_SERVER_URL:
         GITSHOTS_SERVER_URL + '/post_image',
         files={'photo': ('photo', img)}
     )
-    print "Image pushed: {0}".format(response.text)
+    response.raise_for_status()
     response = requests.put(
         GITSHOTS_SERVER_URL + '/put_commit/' + response.text,
         data=data
     )
-    print "Data pushed: {0}".format(response.text)
+    response.raise_for_status()
