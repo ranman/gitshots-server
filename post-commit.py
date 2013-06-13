@@ -51,12 +51,24 @@ data = {
 }
 
 # diff stats
-stats = subprocess.check_output('git diff HEAD~1 --numstat'.split(), shell=False)
-stats = stats.split('\n')
-# split them up by number of lines added, removed, and the filename
-# then chop off the blank line at the end [:-1]
-dstats = [dict(zip(['+', '-', 'f'], line.split('\t'))) for line in stats][:-1]
-data['dstats'] = dstats
+try:
+    stats = subprocess.check_output(
+        'git diff HEAD~ --numstat'.split(),
+        shell=False)
+except:
+    stats = "initial commit"
+else:
+    stats = stats.split('\n')
+    # split the stats up by number of lines added, removed, and the filename
+    # then chop off the blank line at the end [:-1]
+    dstats = [
+        dict(
+            zip(
+                ['+', '-', 'f'], line.split('\t')
+            )
+        )
+        for line in stats][:-1]
+    data['dstats'] = dstats
 
 # chop off the jpg extensions and add json instead (ensure unicode)
 with io.open(imgpath[:-3] + 'json', 'w', encoding='utf-8') as f:
