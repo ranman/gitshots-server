@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Project View{% endblock %}
+{% block title %}User View{% endblock %}
 {% block content %}
     {% for project, shots in gitshots.iteritems() %}
         {% if shots|length != 0 %}
