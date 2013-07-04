@@ -50,13 +50,26 @@ data = {
     'project': os.path.basename(os.getcwd()),
 }
 
-# diff stats
-stats = subprocess.check_output('git diff HEAD~1 --numstat'.split(), shell=False)
-stats = stats.split('\n')
-# split them up by number of lines added, removed, and the filename
-# then chop off the blank line at the end [:-1]
-dstats = [dict(zip(['+', '-', 'f'], line.split('\t'))) for line in stats][:-1]
-data['dstats'] = dstats
+
+# this command should be empty if this is the first comit
+initial_commit = subprocess.check_output(
+    'git rev-list --min-parents=1 HEAD'.split(), shell=False)
+if initial_commit:
+    stats = subprocess.check_output('git diff HEAD~ --numstat'.split(),
+    shell=False)
+    stats = stats.split('\n')
+    # split the stats up by number of lines added, removed, and the filename
+    # then chop off the blank line at the end [:-1]
+    dstats = [
+        dict(
+            zip(
+                ['+', '-', 'f'], line.split('\t')
+            )
+        )
+        for line in stats][:-1]
+    data['dstats'] = dstats
+else:
+    data['dstats'] = 'initial commit'
 
 # chop off the jpg extensions and add json instead (ensure unicode)
 with io.open(imgpath[:-3] + 'json', 'w', encoding='utf-8') as f:
