@@ -106,6 +106,7 @@ def project(project):
 
 
 @app.route('/')
+@cache.memoize(300)  # cache for five minutes
 def index():
     projects = mongo.db.gitshots.distinct('project')
     users = mongo.db.gitshots.distinct('author')
