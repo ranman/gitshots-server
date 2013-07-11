@@ -6,7 +6,9 @@
             <h1>{{project}}</h1>
             <section class="photos">
                 {% for shot in shots %}
-                    <img src="/img/{{shot._id}}.jpg" title="{{shot.msg}}">
+                    <a href="/gitshot/{{shot._id}}.html">
+                        <img src="/gitshot/{{shot._id}}.jpg" title="{{shot.msg}}">
+                    </a>
                 {% endfor %}
             </section>
         {% endif %}

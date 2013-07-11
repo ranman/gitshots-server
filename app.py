@@ -13,7 +13,7 @@ from flask import (
 from flask.ext.pymongo import PyMongo
 from flask.ext.cache import Cache
 from bson.json_util import loads
-from bson import binary
+from bson import binary, ObjectId
 import Image
 
 
@@ -67,7 +67,7 @@ def put_commit(gitshot_id):
     return str(mongo.db.gitshots.save(gitshot))
 
 
-@app.route('/img/<ObjectId:gitshot_id>.jpg')
+@app.route('/gitshot/<ObjectId:gitshot_id>.jpg')
 @cache.memoize(3600)  # cache for 1 hour
 def render_image(gitshot_id):
     def wsgi_app(environ, start_response):
@@ -103,6 +103,12 @@ def project(project):
     for gitshot in gitshots:
         ret[gitshot['project']].append(gitshot)
     return render_template('project.html', gitshots=ret)
+
+
+@app.route('/gitshot/<ObjectId:gitshot_id>.html')
+def gitshot(gitshot_id):
+    gitshot = mongo.db.gitshots.find_one(ObjectId(gitshot_id))
+    return render_template('commit.html', gitshot=gitshot)
 
 
 @app.route('/')
