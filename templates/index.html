@@ -3,9 +3,20 @@
     <h1>Git Shots</h1>
     <div class="row-fluid">
     <h3>What the hell is this?</h3>
-    <p>You install this: <a href="/post-commit.py">post-commit.py</a> with a command like this:
-    <code>ln -sf post-commit.py /usr/local/share/git-core/templates/hooks/post-commit</code>
-    you'll also want to <code>chmod +x</code> that stuff, <code>git init</code>, and maybe change some files around... I am not going to tell you how to do this.</p>
+    <p>Take a picture every time you commit!</p>
+    <p>Installation Instructions:</p>
+    <ol>
+        <li>Download <a href="https://raw.github.com/ranman/gitshots/master/post-commit.py">post-commit.py</a>
+        <li>Install this as a post-commit hook in your repo, <a href="http://git-scm.com/book/en/Customizing-Git-Git-Hooks#Installing-a-Hook">like this!</a></li>
+        This is how I do this:
+        <ol>
+            <li><code>git config --global init.templatedir '~/.git_template'</code></li>
+            <li><code>mkdir -p ~/.git_template/hooks</code></li>
+            <li><code>echo '#!/bin/sh\n/usr/bin/env python2.7 <b>/FULLPATH/TO/post-commit.py'</b> >> ~/.git_template/hooks/post-commit</code></li>
+            <li><code>chmod +x ~/.git_template/hooks/post-commit</code></li>
+        </ol>
+        <li>Run <code>git init</code> in a repo where you want to use the hook!</li>
+    </ol>
 
     <div class="row">
         <div class="col-6">
