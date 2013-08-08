@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>Git Shots</h1>
+    <h1 class="text-center">Git Shots!</h1>
     <div class="row-fluid">
-    <h3>What the hell is this?</h3>
-    <p>Take a picture every time you commit!</p>
-    <p>Installation Instructions:</p>
+    <h2>What the hell is this?</h2>
+    <p class="lead">Take a picture and collect some stats every time you commit!</p>
+    <h2>Installation Instructions:</h2>
     <ol>
         <li>Download <a href="https://raw.github.com/ranman/gitshots/master/post-commit.py">post-commit.py</a>
         <li>Install this as a post-commit hook in your repo, <a href="http://git-scm.com/book/en/Customizing-Git-Git-Hooks#Installing-a-Hook">like this!</a></li>
@@ -12,7 +12,7 @@
         <ol>
             <li><code>git config --global init.templatedir '~/.git_template'</code></li>
             <li><code>mkdir -p ~/.git_template/hooks</code></li>
-            <li><code>echo '#!/bin/sh\n/usr/bin/env python2.7 <b>/FULLPATH/TO/post-commit.py'</b> >> ~/.git_template/hooks/post-commit</code></li>
+            <li><code>echo '#!/bin/sh\n/usr/bin/env python2.7 <strong>/FULLPATH/TO/</strong>post-commit.py' >> ~/.git_template/hooks/post-commit</code></li>
             <li><code>chmod +x ~/.git_template/hooks/post-commit</code></li>
         </ol>
         <li>Run <code>git init</code> in a repo where you want to use the hook!</li>
