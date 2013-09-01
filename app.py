@@ -85,9 +85,12 @@ def render_image(gitshot_id):
 
 @app.route('/user/<username>')
 def user_profile(username):
+    limit = request.args.get('limit', 20)
+    sort = request.args.get('sort', 'ts')
     gitshots = mongo.db.gitshots.find(
-        {'author': username}, {'img': False}
-    ).sort('ts', -1)
+        {'author': username},
+        {'img': False}
+    ).limit(limit).sort(sort, -1)
     if request_wants_json():
         return jsonify(items=list(gitshots))
     ret = defaultdict(list)
@@ -98,9 +101,12 @@ def user_profile(username):
 
 @app.route('/project/<project>')
 def project(project):
+    limit = request.args.get('limit', 20)
+    sort = request.args.get('sort', 'ts')
     gitshots = mongo.db.gitshots.find(
-        {'project': project}, {'img': False}
-    ).sort('ts', -1)
+        {'project': project},
+        {'img': False}
+    ).limit(limit).sort(sort, -1)
     if request_wants_json():
         return jsonify(items=[list(gitshots)])
     ret = defaultdict(list)
