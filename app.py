@@ -85,7 +85,7 @@ def render_image(gitshot_id):
 
 @app.route('/user/<username>')
 def user_profile(username):
-    limit = request.args.get('limit', 20)
+    limit = int(request.args.get('limit', 20))
     sort = request.args.get('sort', 'ts')
     gitshots = mongo.db.gitshots.find(
         {'author': username},
@@ -101,7 +101,7 @@ def user_profile(username):
 
 @app.route('/project/<project>')
 def project(project):
-    limit = request.args.get('limit', 20)
+    limit = int(request.args.get('limit', 20))
     sort = request.args.get('sort', 'ts')
     gitshots = mongo.db.gitshots.find(
         {'project': project},
