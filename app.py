@@ -1,4 +1,5 @@
 import cStringIO
+import re
 from datetime import datetime
 from collections import defaultdict
 
@@ -12,6 +13,7 @@ from flask import (
 
 from flask.ext.pymongo import PyMongo
 from flask.ext.cache import Cache
+from jinja2 import evalcontextfilter, Markup, escape
 from bson.json_util import loads
 from bson import binary, ObjectId
 import Image
@@ -29,6 +31,16 @@ app.config.from_object('config')
 
 cache = Cache(app)
 mongo = PyMongo(app)
+
+_paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
+
+
+@app.template_filter()
+def commitmsg(value):
+    result = u'\n\n'.join(
+        u'<p>{}</p>'.format(p.replace('.\n', '.<br/>\n'))
+        for p in _paragraph_re.split(value))
+    return result
 
 
 @app.errorhandler(404)
