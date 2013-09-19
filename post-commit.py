@@ -11,6 +11,8 @@ import json
 import sys
 import requests
 from datetime import datetime
+if os.path.isdir('.git/rebase-merge'):
+    sys.exit()
 if os.fork():
     sys.exit()
 
