@@ -14,8 +14,11 @@ from datetime import datetime
 
 if os.path.isdir('.git/rebase-merge'):
     sys.exit()
-if os.fork():  # will not work on windows
-    sys.exit()
+try:
+    if os.fork():  # will not work on windows
+        sys.exit()
+except AttributeError:
+    pass
 
 GITSHOTS_PATH = '~/.gitshots/'
 GITSHOTS_SERVER_URL = os.environ.get(
