@@ -85,7 +85,8 @@ try:
         'coordinates': [float(where[3]), float(where[1])],
         'err': float(where[6])
     }
-except OSError:
+except Exception:
+    # if it doesn't work for some reason we don't care
     pass
 
 # chop off the jpg extensions and add json instead
