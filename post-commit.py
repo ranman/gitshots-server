@@ -53,7 +53,7 @@ data = {
         shell=False).rstrip(),
     # get the shaw 1 of this commit
     'sha1': subprocess.check_output(
-        'git rev-parse HEAD'.split(), shell=False).rsplit(),
+        'git rev-parse HEAD'.split(), shell=False).rstrip(),
     # project name or document
     'project': os.path.basename(os.getcwd()),
 }
