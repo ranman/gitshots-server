@@ -13,7 +13,6 @@ from flask import (
 
 from flask.ext.pymongo import PyMongo
 from flask.ext.cache import Cache
-from jinja2 import evalcontextfilter, Markup, escape
 from bson.json_util import loads
 from bson import binary, ObjectId
 import Image
@@ -97,12 +96,19 @@ def render_image(gitshot_id):
 
 @app.route('/user/<username>')
 def user_profile(username):
-    limit = int(request.args.get('limit', 20))
+    limit = int(request.args.get('limit', 10))
     sort = request.args.get('sort', 'ts')
-    gitshots = mongo.db.gitshots.find(
-        {'author': username},
-        {'img': False}
-    ).limit(limit).sort(sort, -1)
+    projects = mongo.db.gitshots.find(
+        {'author': username}).distinct('project')
+    gitshots = []
+    for project in projects:
+        shots = mongo.db.gitshots.find(
+            {'author': username,
+             'project': project},
+            {'img': False}
+        ).limit(limit).sort(sort, -1)
+        gitshots.extend(shots)
+
     if request_wants_json():
         return jsonify(items=list(gitshots))
     ret = defaultdict(list)
