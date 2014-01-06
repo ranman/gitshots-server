@@ -119,7 +119,7 @@ def user_profile(username):
 
 @app.route('/project/<project>')
 def project(project):
-    limit = int(request.args.get('limit', 20))
+    limit = int(request.args.get('limit', 100))
     sort = request.args.get('sort', 'ts')
     gitshots = mongo.db.gitshots.find(
         {'project': project},
