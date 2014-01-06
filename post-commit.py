@@ -111,3 +111,5 @@ if GITSHOTS_SERVER_URL and GITSHOTS_SERVER_URL.lower() != "false":
         response.raise_for_status()
     except requests.exceptions.ConnectionError:
         print('Unable to establish connection, saving data')
+        with open('.git/gitshots_failed', 'a') as f:
+            f.write(imgpath[:-3] + '\n')
