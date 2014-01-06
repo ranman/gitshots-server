@@ -78,6 +78,13 @@ else:
         for line in stats][:-1]
     data['dstats'] = dstats
 
+# now figure out where we are
+try:
+    where = subprocess.check_output('whereami').split()
+    data['where'] = {'lat': where[1], 'lng': where[3], 'acc': where[6]}
+except OSError:
+    pass
+
 # chop off the jpg extensions and add json instead
 with io.open(imgpath[:-3] + 'json', 'w', encoding='utf-8') as f:
     f.write(unicode(json.dumps(data, ensure_ascii=False)))
