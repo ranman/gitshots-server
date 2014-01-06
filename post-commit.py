@@ -89,6 +89,7 @@ try:
     }
 except Exception:
     # if it doesn't work for some reason we don't care
+    print('Unable to add location data')
     pass
 
 # chop off the jpg extensions and add json instead
