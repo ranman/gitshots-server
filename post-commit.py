@@ -80,7 +80,11 @@ else:
 # now figure out where we are
 try:
     where = subprocess.check_output('whereami').split()
-    data['where'] = {'lat': where[1], 'lng': where[3], 'acc': where[6]}
+    data['where'] = {
+        'type': 'Point',
+        'coordinates': [float(where[3]), float(where[1])],
+        'err': float(where[6])
+    }
 except OSError:
     pass
 
