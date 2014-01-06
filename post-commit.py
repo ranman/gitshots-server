@@ -87,7 +87,7 @@ except OSError:
 
 # chop off the jpg extensions and add json instead
 with io.open(imgpath[:-3] + 'json', 'w', encoding='utf-8') as f:
-    f.write(unicode(json.dumps(data, ensure_ascii=False)))
+    f.write(json.dumps(data, ensure_ascii=False))
 
 if GITSHOTS_SERVER_URL and GITSHOTS_SERVER_URL.lower() != "false":
     data = json.dumps(data, ensure_ascii=False)
