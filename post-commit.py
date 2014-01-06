@@ -68,13 +68,15 @@ else:
     stats = stats.split('\n')
     # split the stats up by number of lines added, removed, and the filename
     # then chop off the blank line at the end [:-1]
-    dstats = [
-        dict(
-            zip(
-                ['+', '-', 'f'], line.split('\t')
-            )
-        )
-        for line in stats][:-1]
+    dstats = []
+    for line in stats[:-1]:
+        line = line.split('\t')
+        st = {
+            '+': int(line[0]),
+            '-': int(line[1]),
+            'f': line[2]
+        }
+        dstats.append(st)
     data['dstats'] = dstats
 
 # now figure out where we are
