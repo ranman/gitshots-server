@@ -11,9 +11,10 @@ import json
 import sys
 import requests
 from datetime import datetime
+
 if os.path.isdir('.git/rebase-merge'):
     sys.exit()
-if os.fork():
+if os.fork():  # will not work on windows
     sys.exit()
 
 GITSHOTS_PATH = '~/.gitshots/'
@@ -32,7 +33,7 @@ imgpath = os.path.abspath(os.path.expanduser(GITSHOTS_PATH + filename))
 img_command = GITSHOTS_IMAGE_CMD + imgpath
 author = getpass.getuser()
 
-print "Taking capture into {0}...".format(imgpath)
+print("Taking capture into {0}...".format(imgpath))
 subprocess.check_output(img_command.split(' '), shell=False)
 
 with open(imgpath, 'rb') as f:
@@ -74,19 +75,22 @@ else:
         for line in stats][:-1]
     data['dstats'] = dstats
 
-# chop off the jpg extensions and add json instead (ensure unicode)
+# chop off the jpg extensions and add json instead
 with io.open(imgpath[:-3] + 'json', 'w', encoding='utf-8') as f:
     f.write(unicode(json.dumps(data, ensure_ascii=False)))
 
 if GITSHOTS_SERVER_URL and GITSHOTS_SERVER_URL.lower() != "false":
     data = json.dumps(data, ensure_ascii=False)
-    response = requests.post(
-        GITSHOTS_SERVER_URL + '/post_image',
-        files={'photo': ('photo', img)}
-    )
-    response.raise_for_status()
-    response = requests.put(
-        GITSHOTS_SERVER_URL + '/put_commit/' + response.text,
-        data=data
-    )
-    response.raise_for_status()
+    try:
+        response = requests.post(
+            GITSHOTS_SERVER_URL + '/post_image',
+            files={'photo': ('photo', img)}
+        )
+        response.raise_for_status()
+        response = requests.put(
+            GITSHOTS_SERVER_URL + '/put_commit/' + response.text,
+            data=data
+        )
+        response.raise_for_status()
+    except requests.exceptions.ConnectionError:
+        print('Unable to establish connection, saving data')
