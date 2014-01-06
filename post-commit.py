@@ -1,6 +1,8 @@
 # !/usr/bin/env python2.7
 # this is an awesome githook created by randall at 4am.
 # it has since been added to by jessepollak
+# TODO: better location stuff
+# TODO: refactor into methods so you can use to upload failed commits
 
 import os
 import getpass
@@ -50,7 +52,8 @@ data = {
         'git log -n 1 HEAD --format=format:%s%n%b'.split(),
         shell=False).rstrip(),
     # get the shaw 1 of this commit
-    'sha1': subprocess.check_output('git rev-parse HEAD'.split(), shell=False),
+    'sha1': subprocess.check_output(
+        'git rev-parse HEAD'.split(), shell=False).rsplit(),
     # project name or document
     'project': os.path.basename(os.getcwd()),
 }
@@ -89,7 +92,6 @@ try:
     }
 except Exception:
     # if it doesn't work for some reason we don't care
-    print('Unable to add location data')
     pass
 
 # chop off the jpg extensions and add json instead
