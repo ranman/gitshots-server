@@ -7,7 +7,7 @@
 import os
 import getpass
 import subprocess
-import time
+import calendar
 import json
 import sys
 import requests
@@ -31,7 +31,7 @@ if not os.path.exists(os.path.expanduser(GITSHOTS_PATH)):
     os.makedirs(os.path.expanduser(GITSHOTS_PATH))
 
 # filename is unix epoch time
-filename = str(time.mktime(datetime.now().timetuple()))[:10] + '.jpg'
+filename = str(calendar.timegm(datetime.now().utctimetuple())) + '.jpg'
 imgpath = os.path.abspath(os.path.expanduser(GITSHOTS_PATH + filename))
 # this may need to change
 img_command = GITSHOTS_IMAGE_CMD + imgpath
