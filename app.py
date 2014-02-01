@@ -15,7 +15,7 @@ from flask.ext.pymongo import PyMongo
 from flask.ext.cache import Cache
 from bson.json_util import loads
 from bson import binary, ObjectId
-import Image
+from PIL import Image
 
 
 def request_wants_json():
@@ -54,9 +54,9 @@ def post_image():
         imgstr = cStringIO.StringIO(f.stream.read())
         img = Image.open(imgstr)
         img.convert('RGB')
-        img.thumbnail((300, 300))
+        img.thumbnail((600, 600))
         imgbuf = cStringIO.StringIO()
-        img.save(imgbuf, format='JPEG')
+        img.save(imgbuf, format='JPEG', optimize=True, progressive=True)
         gitshot = dict(img=binary.Binary(imgbuf.getvalue()))
         return str(mongo.db.gitshots.insert(gitshot))
     return 400
@@ -82,7 +82,10 @@ def put_commit(gitshot_id):
 @cache.memoize(3600)  # cache for 1 hour
 def render_image(gitshot_id):
     def wsgi_app(environ, start_response):
-        start_response('200 OK', [('Content-type', 'image/jpeg')])
+        start_response('200 OK', [
+            ('Content-Type', 'image/jpeg'),
+            ('Cache-Control', 'max-age=43200')
+        ])
         return img
 
     gitshot = mongo.db.gitshots.find_one_or_404(gitshot_id, {'img': True})
