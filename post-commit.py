@@ -24,7 +24,9 @@ except AttributeError:
 GITSHOTS_PATH = '~/.gitshots/'
 GITSHOTS_SERVER_URL = os.environ.get(
     'GITSHOTS_SERVER_URL', 'http://gitshots.ranman.org')
-GITSHOTS_IMAGE_CMD = 'imagesnap -q '
+
+GITSHOTS_IMAGE_CMD = 'imagesnap'
+GITSHOTS_IMAGE_CMD_ARGS = ['-q']
 
 # ensure directory exists
 if not os.path.exists(os.path.expanduser(GITSHOTS_PATH)):
@@ -33,12 +35,23 @@ if not os.path.exists(os.path.expanduser(GITSHOTS_PATH)):
 # filename is unix epoch time
 filename = str(calendar.timegm(datetime.now().utctimetuple())) + '.jpg'
 imgpath = os.path.abspath(os.path.expanduser(GITSHOTS_PATH + filename))
+GITSHOTS_IMAGE_CMD_ARGS.append(imgpath)
 # this may need to change
-img_command = GITSHOTS_IMAGE_CMD + imgpath
+img_command = [GITSHOTS_IMAGE_CMD] + GITSHOTS_IMAGE_CMD_ARGS
+
 author = getpass.getuser()
 
 print("Taking capture into {0}...".format(imgpath))
-subprocess.check_output(img_command.split(' '), shell=False)
+try:
+    subprocess.check_output(img_command, shell=False)
+except OSError as e:
+    if e.errno == os.errno.ENOENT:
+        msg = "Please run `brew install {cmd}` before using gitshots.".format(
+            cmd=GITSHOTS_IMAGE_CMD
+        )
+        raise Exception(msg)
+    else:
+        raise
 
 with open(imgpath, 'rb') as f:
     img = f.read()
