@@ -2,13 +2,15 @@ import cStringIO
 import re
 from datetime import datetime
 from collections import defaultdict
+from functools import wraps
 
 from flask import (
     Flask,
     render_template,
     make_response,
     request,
-    jsonify
+    jsonify,
+    Response
 )
 
 from flask.ext.pymongo import PyMongo
@@ -33,6 +35,23 @@ mongo = PyMongo(app)
 
 _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
 
+def check_auth(username, password):
+    return username == app.config['AUTH_USERNAME'] and password == app.config['AUTH_PASSWORD']
+
+def authenticate():
+    return Response(
+    'Could not verify your access level for that URL.\n'
+    'You have to login with proper credentials', 401,
+    {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if (app.config['AUTH_USERNAME'] and app.config['AUTH_PASSWORD']) and (not auth or not check_auth(auth.username, auth.password)):
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
 
 @app.template_filter()
 def commitmsg(value):
@@ -79,6 +98,7 @@ def put_commit(gitshot_id):
 
 
 @app.route('/gitshot/<ObjectId:gitshot_id>.jpg')
+@requires_auth
 @cache.memoize(3600)  # cache for 1 hour
 def render_image(gitshot_id):
     def wsgi_app(environ, start_response):
@@ -98,6 +118,7 @@ def render_image(gitshot_id):
 
 
 @app.route('/user/<username>')
+@requires_auth
 def user_profile(username):
     limit = int(request.args.get('limit', 10))
     sort = request.args.get('sort', 'ts')
@@ -121,6 +142,7 @@ def user_profile(username):
 
 
 @app.route('/project/<project>')
+@requires_auth
 def project(project):
     limit = int(request.args.get('limit', 100))
     sort = request.args.get('sort', 'ts')
@@ -137,12 +159,14 @@ def project(project):
 
 
 @app.route('/gitshot/<ObjectId:gitshot_id>.html')
+@requires_auth
 def gitshot(gitshot_id):
     gitshot = mongo.db.gitshots.find_one(ObjectId(gitshot_id))
     return render_template('commit.html', gitshot=gitshot)
 
 
 @app.route('/')
+@requires_auth
 @cache.memoize(300)  # cache for five minutes
 def index():
     projects = mongo.db.gitshots.distinct('project')
