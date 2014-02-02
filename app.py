@@ -164,6 +164,7 @@ def gitshot(gitshot_id):
 
 
 @app.route('/')
+@requires_auth
 @cache.memoize(300)  # cache for five minutes
 def index():
     projects = mongo.db.gitshots.distinct('project')
