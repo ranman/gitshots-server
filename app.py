@@ -35,23 +35,29 @@ mongo = PyMongo(app)
 
 _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
 
+
 def check_auth(username, password):
-    return username == app.config['AUTH_USERNAME'] and password == app.config['AUTH_PASSWORD']
+    return (username == app.config['AUTH_USERNAME'] and
+            password == app.config['AUTH_PASSWORD'])
+
 
 def authenticate():
     return Response(
-    'Could not verify your access level for that URL.\n'
-    'You have to login with proper credentials', 401,
-    {'WWW-Authenticate': 'Basic realm="Login Required"'})
+        'Could not verify your access level for that URL.\n'
+        'You have to login with proper credentials', 401,
+        {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
 
 def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         auth = request.authorization
-        if (app.config['AUTH_USERNAME'] and app.config['AUTH_PASSWORD']) and (not auth or not check_auth(auth.username, auth.password)):
+        if (app.config['AUTH_USERNAME'] and app.config['AUTH_PASSWORD']) and (
+                not auth or not check_auth(auth.username, auth.password)):
             return authenticate()
         return f(*args, **kwargs)
     return decorated
+
 
 @app.template_filter()
 def commitmsg(value):
