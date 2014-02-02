@@ -11,6 +11,9 @@ MONGO_PORT = os.environ.get('MONGO_PORT', 27017)
 MONGO_USERNAME = os.environ.get('MONGO_USERNAME', None)
 MONGO_PASSWORD = os.environ.get('MONGO_PASSWORD', None)
 
+AUTH_USERNAME = os.environ.get('AUTH_USERNAME', None)
+AUTH_PASSWORD = os.environ.get('AUTH_PASSWORD', None)
+
 CACHE_TYPE = 'filesystem'
 CACHE_DIR = 'static/imgs'
 
