@@ -87,11 +87,14 @@ else:
     dstats = []
     for line in stats[:-1]:
         line = line.split('\t')
-        st = {
-            '+': int(line[0]),
-            '-': int(line[1]),
-            'f': line[2]
-        }
+        st = {'f': line[2]}
+        # we can't get line diffs on binary files.
+        if '-' in line[:2]:
+            st['+'] = 'binary'
+            st['-'] = 'binary'
+        else:
+            st['+'] = int(line[0])
+            st['-'] = int(line[1])
         dstats.append(st)
     data['dstats'] = dstats
 
