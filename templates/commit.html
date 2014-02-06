@@ -7,11 +7,29 @@
 <h3>{{gitshot.msg|commitmsg|safe}}</h3>
 
 <h4>{{gitshot.sha1}}</h4>
+{% if gitshot.where %}
+    <div id="whereMap" style="height:250px"></div>
+    <script src="/static/lib/OpenLayers.js"></script>
+    <script>
+        map = new OpenLayers.Map("whereMap");
+        map.addLayer(new OpenLayers.Layer.OSM());
+        var markers = new OpenLayers.Layer.Markers( "Markers" );
+        map.addLayer(markers);
+        var size = new OpenLayers.Size(21,25);
+        var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
+        var icon = new OpenLayers.Icon('http://www.openlayers.org/dev/img/marker.png',size,offset);
+        var lonLat = new OpenLayers.LonLat({{gitshot.where.coordinates[0]}}, {{gitshot.where.coordinates[1]}}).transform(
+            new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
+        markers.addMarker(new OpenLayers.Marker(lonLat, icon));
+        var zoom = 17;
+        map.setCenter(lonLat, zoom);
+    </script>
+{% endif %}
 <h4>Stats</h4>
 {{gitshot.ts.strftime('%Y-%m-%d')}}
 <ul>
 {% for file in gitshot.dstats %}
-    <li>{{file.f}}
+    <li><span class="file">{{file.f}}</span>
         <ul>
             <li>ADDED {{file['+']}}</li>
             <li>REMOVED {{file['-']}}</li>
