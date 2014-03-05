@@ -27,6 +27,7 @@ GITSHOTS_SERVER_URL = os.environ.get(
 
 GITSHOTS_IMAGE_CMD = 'imagesnap'
 GITSHOTS_IMAGE_CMD_ARGS = ['-q']
+LOCATION_URI = 'http://where.ranman.org/current_location.json'
 
 # ensure directory exists
 if not os.path.exists(os.path.expanduser(GITSHOTS_PATH)):
@@ -99,16 +100,18 @@ else:
     data['dstats'] = dstats
 
 # now figure out where we are
-try:
-    where = subprocess.check_output('whereami').split()
+r = requests.get(LOCATION_URI).json()
+if r:
+    l = r.get('venue').get('location')
     data['where'] = {
         'type': 'Point',
-        'coordinates': [float(where[3]), float(where[1])],
-        'err': float(where[6])
+        'coordinates': [l['lng'], l['lat']],
+        'err': '0'
     }
-except Exception:
-    # if it doesn't work for some reason we don't care
-    pass
+    del l['lat']
+    del l['lng']
+    data['where'].update(l)
+    data['where']['ts'] = r['createdAt']
 
 # chop off the jpg extensions and add json instead
 with open(imgpath[:-3] + 'json', 'w') as f:
