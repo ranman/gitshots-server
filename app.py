@@ -171,6 +171,14 @@ def gitshot(gitshot_id):
     return render_template('commit.html', gitshot=gitshot)
 
 
+@app.route('/<project>/<sha1>')
+@requires_auth
+def gitshot_sha1(project, sha1):
+    gitshot = mongo.db.gitshots.find_one(
+        {'project': project, 'sha1': sha1})
+    return render_template('commit.html', gitshot=gitshot)
+
+
 @app.route('/')
 @requires_auth
 @cache.memoize(300)  # cache for five minutes
