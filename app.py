@@ -1,5 +1,6 @@
 import cStringIO
 import re
+from subprocess import Popen, PIPE
 from datetime import datetime
 from collections import defaultdict
 from functools import wraps
@@ -10,7 +11,8 @@ from flask import (
     make_response,
     request,
     jsonify,
-    Response
+    Response,
+    send_file
 )
 
 from flask.ext.pymongo import PyMongo
@@ -34,6 +36,7 @@ cache = Cache(app)
 mongo = PyMongo(app)
 
 _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
+FFMPEG = "ffmpeg -y -f image2pipe -vcodec mjpeg -i - -vcodec mpeg4 -qscale 5 -r {0} {1}.avi"
 
 
 def check_auth(username, password):
@@ -177,6 +180,25 @@ def gitshot_sha1(project, sha1):
     gitshot = mongo.db.gitshots.find_one(
         {'project': project, 'sha1': sha1})
     return render_template('commit.html', gitshot=gitshot)
+
+
+@app.route('/user/<user>.avi')
+@requires_auth
+def render_video(user):
+    images = mongo.db.gitshots.find({'author': user, 'img': {'$exists': True}})
+    if images.count() <= 10:
+        frames = 2
+    elif images.count() < 100:
+        frames = 15
+    else:
+        frames = 24
+    cmd = FFMPEG.format(frames, user)
+    p = Popen(cmd.split(), stdin=PIPE)
+    for image in images:
+        p.stdin.write(image['img'])
+    p.stdin.close()
+    p.wait()
+    return send_file(open(user+'.avi'), as_attachment=True)
 
 
 @app.route('/')
