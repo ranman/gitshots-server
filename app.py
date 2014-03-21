@@ -113,10 +113,9 @@ def put_commit(gitshot_id):
 @cache.memoize(3600)  # cache for 1 hour
 def render_image(gitshot_id):
     gitshot = mongo.db.gitshots.find_one_or_404(gitshot_id)
-    img = gitshot.get('img', open('static/no_image.jpg').read())
-
+    img = gitshot.get('img')
     response = make_response(img)
-    response.headers['Content-Type'] = 'image/jpeg'
+    response.content_type = 'image/jpeg'
     response.headers['Cache-Control'] = 'max-age=43200'
     return response
 
