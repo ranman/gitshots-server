@@ -54,27 +54,26 @@ if not author:
     sys.exit(1)
 
 
-def post_gitshots(gitshots):
-    if GITSHOTS_SERVER_URL:
-        for gitshot in gitshots:
-            img = open(gitshot['img'])
-            del gitshot['img']
-            data = json.dumps(gitshot, ensure_ascii=False)
-            try:
-                response = requests.post(
-                    GITSHOTS_SERVER_URL + '/post_image',
-                    files={'photo': ('photo', img)}
-                )
-                response.raise_for_status()
-                response = requests.put(
-                    GITSHOTS_SERVER_URL + '/put_commit/' + response.text,
-                    data=data
-                )
-                response.raise_for_status()
-                cleanup(gitshot)
-            except:
-                print("Unable to upload gitshots, saving for later")
-                save_gitshot(gitshot)
+def post_gitshot(gitshot):
+    img = open(gitshot['img'])
+    del gitshot['img']
+    data = json.dumps(gitshot, ensure_ascii=False)
+    try:
+        response = requests.post(
+            GITSHOTS_SERVER_URL + '/post_image',
+            files={'photo': ('photo', img)}
+        )
+        response.raise_for_status()
+        response = requests.put(
+            GITSHOTS_SERVER_URL + '/put_commit/' + response.text,
+            data=data
+        )
+        response.raise_for_status()
+        # check if this is failed and cleanup if it is
+        cleanup(gitshot)
+    except:
+        print("Unable to upload gitshot, saving for later")
+        save_gitshot(gitshot)
 
 
 def save_gitshot():
@@ -162,4 +161,6 @@ def take_gitshot():
 if __name__ == '__main__':
     gitshots = get_failures() or []
     gitshots.append(collect_stats())
-    post_gitshots(gitshots)
+    if GITSHOTS_SERVER_URL:
+        for gitshot in gitshots:
+            post_gitshot(gitshot)
