@@ -6,11 +6,11 @@ if os.path.isdir('.git/rebase-merge'):
     sys.exit()
 
 # try to fork as soon as possible to not block shell
-# try:
-#     if os.fork():  # will not work on windows
-#         sys.exit()
-# except AttributeError:
-#     pass
+try:
+    if os.fork():  # will not work on windows
+        sys.exit()
+except AttributeError:
+    pass
 
 import subprocess
 import calendar
