@@ -39,9 +39,8 @@ def run_command(command):
     return subprocess.check_output(command.split()).rstrip()
 
 #get the top-level directory for this repo:
-failed_path = os.path.join(
-    run_command('git rev-parse --show-toplevel'),
-    '.git/failed_gitshots')
+tld = run_command('git rev-parse --show-toplevel')
+failed_path = os.path.join(tld, '.git/failed_gitshots')
 
 
 # filename is unix epoch time
@@ -102,7 +101,7 @@ def collect_stats():
         # get the shaw 1 of this commit
         'sha1': run_command('git rev-parse HEAD'),
         # project name or document
-        'project': os.path.basename(os.getcwd()),
+        'project': os.path.basename(tld),
     }
     data['dstats'] = file_stats()
     data['where'] = where()
