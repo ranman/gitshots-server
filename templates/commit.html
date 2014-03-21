@@ -6,7 +6,7 @@
 <img src="/{{gitshot._id}}.jpg">
 <h3>{{gitshot.msg|commitmsg|safe}}</h3>
 {% if gitshot.url %}
-    {% set url = gitshots.url + '/' + 'commit/' + gitshots.sha1 %}
+    {% set url = gitshot.url + '/' + 'commit/' + gitshot.sha1 %}
 {% else %}
     {% set url = "/".join([
         "http://github.com",
