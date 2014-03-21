@@ -3,10 +3,21 @@
 {% block content %}
 <h1>{{gitshot.project}}</h1>
 <h2>{{gitshot.author}}</h2>
-<img src="/gitshot/{{gitshot._id}}.jpg">
+<img src="/{{gitshot._id}}.jpg">
 <h3>{{gitshot.msg|commitmsg|safe}}</h3>
+{% if gitshot.url %}
+    {% set url = gitshots.url + '/' + 'commit/' + gitshots.sha1 %}
+{% else %}
+    {% set url = "/".join([
+        "http://github.com",
+        gitshot.author,
+        gitshot.project,
+        'commit',
+        gitshot.sha1])
+    %}
+{% endif %}
 
-<h4>{{gitshot.sha1}}</h4>
+<h4><a href="{{url}}">{{gitshot.sha1}}</a></h4>
 {% if gitshot.where %}
     <div id="whereMap" style="height:250px"></div>
     <script src="/static/lib/OpenLayers.js"></script>

@@ -82,7 +82,9 @@ def post_image():
         imgstr = cStringIO.StringIO(f.stream.read())
         img = Image.open(imgstr)
         img.convert('RGB')
-        img.thumbnail((600, 600))
+        width, height = img.size
+        if not(width <= 1920 and height <= 1080):
+            img.thumbnail((1920, 1080))
         imgbuf = cStringIO.StringIO()
         img.save(imgbuf, format='JPEG', optimize=True, progressive=True)
         gitshot = dict(img=binary.Binary(imgbuf.getvalue()))
@@ -106,27 +108,61 @@ def put_commit(gitshot_id):
     return str(mongo.db.gitshots.save(gitshot))
 
 
-@app.route('/gitshot/<ObjectId:gitshot_id>.jpg')
+@app.route('/<ObjectId:gitshot_id>.jpg')
 @requires_auth
 @cache.memoize(3600)  # cache for 1 hour
 def render_image(gitshot_id):
-    def wsgi_app(environ, start_response):
-        start_response('200 OK', [
-            ('Content-Type', 'image/jpeg'),
-            ('Cache-Control', 'max-age=43200')
-        ])
-        return img
+    gitshot = mongo.db.gitshots.find_one_or_404(gitshot_id)
+    img = gitshot.get('img', open('static/no_image.jpg').read())
 
-    gitshot = mongo.db.gitshots.find_one_or_404(gitshot_id, {'img': True})
-    if 'img' in gitshot:
-        img = gitshot['img']
-        return make_response(wsgi_app)
-    else:
-        img = open('static/no_image.jpg').read()
-        return make_response(wsgi_app)
+    response = make_response(img)
+    response.headers['Content-Type'] = 'image/jpeg'
+    response.headers['Cache-Control'] = 'max-age=43200'
+    return response
 
 
-@app.route('/user/<username>')
+@app.route('/<ObjectId:gitshot_id>')
+@requires_auth
+def gitshot(gitshot_id):
+    gitshot = mongo.db.gitshots.find_one(ObjectId(gitshot_id))
+    return render_template('commit.html', gitshot=gitshot)
+
+
+@app.route('/<project>/<sha1>.jpg')
+@requires_auth
+def get_image_by_sha1(project, sha1):
+    gitshot = mongo.db.gitshots.find_one_or_404(
+        {'project': project, 'sha1': sha1},
+        {'img': False})
+    return render_image(gitshot['_id'])
+
+
+@app.route('/<project>/<sha1>')
+@requires_auth
+def gitshot_sha1(project, sha1):
+    gitshot = mongo.db.gitshots.find_one_or_404(
+        {'project': project, 'sha1': sha1})
+    return render_template('commit.html', gitshot=gitshot)
+
+
+@app.route('/project/<project>/')
+@requires_auth
+def project(project):
+    limit = int(request.args.get('limit', 100))
+    sort = request.args.get('sort', 'ts')
+    gitshots = mongo.db.gitshots.find(
+        {'project': project},
+        {'img': False}
+    ).limit(limit).sort(sort, -1)
+    if request_wants_json():
+        return jsonify(items=[list(gitshots)])
+    ret = defaultdict(list)
+    for gitshot in gitshots:
+        ret[gitshot['project']].append(gitshot)
+    return render_template('project.html', gitshots=ret)
+
+
+@app.route('/user/<username>/')
 @requires_auth
 def user_profile(username):
     limit = int(request.args.get('limit', 10))
@@ -148,38 +184,6 @@ def user_profile(username):
     for gitshot in gitshots:
         ret[gitshot['project']].append(gitshot)
     return render_template('user.html', gitshots=ret)
-
-
-@app.route('/project/<project>')
-@requires_auth
-def project(project):
-    limit = int(request.args.get('limit', 100))
-    sort = request.args.get('sort', 'ts')
-    gitshots = mongo.db.gitshots.find(
-        {'project': project},
-        {'img': False}
-    ).limit(limit).sort(sort, -1)
-    if request_wants_json():
-        return jsonify(items=[list(gitshots)])
-    ret = defaultdict(list)
-    for gitshot in gitshots:
-        ret[gitshot['project']].append(gitshot)
-    return render_template('project.html', gitshots=ret)
-
-
-@app.route('/gitshot/<ObjectId:gitshot_id>.html')
-@requires_auth
-def gitshot(gitshot_id):
-    gitshot = mongo.db.gitshots.find_one(ObjectId(gitshot_id))
-    return render_template('commit.html', gitshot=gitshot)
-
-
-@app.route('/<project>/<sha1>')
-@requires_auth
-def gitshot_sha1(project, sha1):
-    gitshot = mongo.db.gitshots.find_one(
-        {'project': project, 'sha1': sha1})
-    return render_template('commit.html', gitshot=gitshot)
 
 
 @app.route('/user/<user>.avi')
