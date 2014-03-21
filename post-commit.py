@@ -156,7 +156,6 @@ def file_stats():
 
 
 def take_gitshot():
-    print("Taking capture into {0}...".format(imgpath))
     run_command(img_command)
     return imgpath
 
