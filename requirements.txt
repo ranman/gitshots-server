@@ -4,7 +4,7 @@ Flask-PyMongo==0.3.0
 Flask-Script==0.6.2
 Jinja2==2.7.1
 MarkupSafe==0.18
-PIL==1.1.7
+pillow==2.3.1
 Werkzeug==0.9.4
 gunicorn==18.0
 itsdangerous==0.23
