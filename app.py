@@ -20,6 +20,10 @@ from flask.ext.cache import Cache
 from bson.json_util import loads
 from bson import binary, ObjectId
 from PIL import Image
+from PIL import ImageFile
+
+# we have to set a larger block size for images
+ImageFile.MAXBLOCK = 1920*1080
 
 
 def request_wants_json():
@@ -84,7 +88,7 @@ def post_image():
         img.convert('RGB')
         width, height = img.size
         if not(width <= 1920 and height <= 1080):
-            img.thumbnail((1920, 1080))
+            img.thumbnail((1920, 1080), Image.ANTIALIAS)
         imgbuf = cStringIO.StringIO()
         img.save(imgbuf, format='JPEG', optimize=True, progressive=True)
         gitshot = dict(img=binary.Binary(imgbuf.getvalue()))

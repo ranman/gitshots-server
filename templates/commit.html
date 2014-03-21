@@ -3,7 +3,7 @@
 {% block content %}
 <h1>{{gitshot.project}}</h1>
 <h2>{{gitshot.author}}</h2>
-<img src="/{{gitshot._id}}.jpg">
+<img width=600 src="/{{gitshot._id}}.jpg">
 <h3>{{gitshot.msg|commitmsg|safe}}</h3>
 {% if gitshot.url %}
     {% set url = gitshot.url + '/' + 'commit/' + gitshot.sha1 %}

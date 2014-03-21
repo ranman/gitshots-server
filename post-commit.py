@@ -55,7 +55,7 @@ if not author:
 
 
 def post_gitshot(gitshot):
-    img = open(gitshot['img'])
+    img = open(gitshot['imgpath'])
     data = json.dumps(gitshot, ensure_ascii=False)
     try:
         response = requests.post(
@@ -124,7 +124,7 @@ def collect_stats():
     data['dstats'] = file_stats()
     data['where'] = where()
     try:
-        data['img'] = take_gitshot()
+        data['imgpath'] = take_gitshot()
     except:
         print("Unable to take a gitshot! Is your image command configured?")
     with open(imgpath[:-3] + 'json', 'w') as f:
