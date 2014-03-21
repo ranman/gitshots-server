@@ -90,6 +90,17 @@ def cleanup(gitshot):
     pass
 
 
+def get_project():
+    data = {}
+    url = run_command('git config remote.origin.url')
+    if not url.startswith('http'):
+        url = url.replace(':', '/').replace('git@', 'https://')
+    url = url.replace('.git', '')
+    data['url'] = url
+    data['project'] = os.path.basename(tld)
+    return data
+
+
 def collect_stats():
     data = {
         'author': author,
@@ -98,10 +109,9 @@ def collect_stats():
         # grab commit message and chop off the last newline
         'msg': run_command('git log -n 1 HEAD --format=format:%s%n%b'),
         # get the shaw 1 of this commit
-        'sha1': run_command('git rev-parse HEAD'),
-        # project name or document
-        'project': os.path.basename(tld),
+        'sha1': run_command('git rev-parse HEAD')
     }
+    data.update(get_project())
     data['dstats'] = file_stats()
     data['where'] = where()
     try:
