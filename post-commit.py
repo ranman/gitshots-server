@@ -56,7 +56,6 @@ if not author:
 
 def post_gitshot(gitshot):
     img = open(gitshot['img'])
-    del gitshot['img']
     data = json.dumps(gitshot, ensure_ascii=False)
     try:
         response = requests.post(
@@ -76,27 +75,36 @@ def post_gitshot(gitshot):
         save_gitshot(gitshot)
 
 
-def save_gitshot():
+def save_gitshot(gitshot):
     if not os.path.exists(failed_path):
         os.makedirs(failed_path)
+        with open(os.path.join(failed_path, gitshot['sha1']+'.json')) as f:
+            f.write(json.dumps(gitshot))
 
 
 def get_failures():
     if os.path.exists(failed_path):
-        return os.listdir(failed_path)
+        gitshots = []
+        for fpath in os.listdir(failed_path):
+            with open(fpath) as f:
+                gitshots.append(json.loads(f.read()))
 
 
 def cleanup(gitshot):
-    pass
+    if os.path.exists(os.path.join(failed_path, gitshot['sha1']+'.json')):
+        os.remove(os.path.join(failed_path, gitshot['sha1']+'.json'))
 
 
 def get_project():
     data = {}
-    url = run_command('git config remote.origin.url')
-    if not url.startswith('http'):
-        url = url.replace(':', '/').replace('git@', 'https://')
-    url = url.replace('.git', '')
-    data['url'] = url
+    try:
+        url = run_command('git config remote.origin.url')
+        if not url.startswith('http'):
+            url = url.replace(':', '/').replace('git@', 'https://')
+        url = url.replace('.git', '')
+        data['url'] = url
+    except:
+        pass
     data['project'] = os.path.basename(tld)
     return data
 
@@ -109,7 +117,8 @@ def collect_stats():
         # grab commit message and chop off the last newline
         'msg': run_command('git log -n 1 HEAD --format=format:%s%n%b'),
         # get the shaw 1 of this commit
-        'sha1': run_command('git rev-parse HEAD')
+        'sha1': run_command('git rev-parse HEAD'),
+        'branch': run_command('git rev-parse --abbrev-ref HEAD')
     }
     data.update(get_project())
     data['dstats'] = file_stats()
