@@ -19,22 +19,12 @@
     </ol>
 
     <div class="row">
-        <div class="col-6">
-            <h2>Projects</h2>
-            <ul>
-            {% for project in projects %}
-                <li><a href="/project/{{project}}">{{project}}</a></li>
-            {% endfor %}
-            </ul>
-        </div>
-        <div class="col-6">
-            <h2>Users</h2>
-            <ul>
-            {% for user in users %}
-                <li><a href="/user/{{user}}">{{user}}</a></li>
-            {% endfor %}
-            </ul>
-        </div>
+        <h2>Users</h2>
+        <ul>
+        {% for user in users %}
+            <li><a href="/gh/{{user}}">{{user}}</a></li>
+        {% endfor %}
+        </ul>
     </div>
 </div>
 {% endblock %}

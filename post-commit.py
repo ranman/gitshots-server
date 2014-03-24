@@ -48,8 +48,8 @@ filename = str(calendar.timegm(datetime.now().utctimetuple())) + '.jpg'
 imgpath = os.path.abspath(os.path.expanduser(GITSHOTS_PATH + filename))
 img_command = GITSHOTS_IMAGE_CMD + imgpath
 
-author = run_command('git config github.user')
-if not author:
+user = run_command('git config github.user')
+if not user:
     print('run git config --global github.user <user>')
     sys.exit(1)
 
@@ -111,7 +111,7 @@ def get_project():
 
 def collect_stats():
     data = {
-        'author': author,
+        'user': user,
         # get the timestamp
         'ts': int(filename[:10]),
         # grab commit message and chop off the last newline

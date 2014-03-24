@@ -2,15 +2,15 @@
 {% block title %}Commit View{% endblock %}
 {% block content %}
 <h1>{{gitshot.project}}</h1>
-<h2>{{gitshot.author}}</h2>
+<h2>{{gitshot.user}}</h2>
 <img width=600 src="/{{gitshot._id}}.jpg">
 <h3>{{gitshot.msg|commitmsg|safe}}</h3>
 {% if gitshot.url %}
     {% set url = gitshot.url + '/' + 'commit/' + gitshot.sha1 %}
-{% else %}
+{% elif gitshot.sha1 %}
     {% set url = "/".join([
         "http://github.com",
-        gitshot.author,
+        gitshot.user,
         gitshot.project,
         'commit',
         gitshot.sha1])

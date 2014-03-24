@@ -112,9 +112,14 @@ def put_commit(gitshot_id):
     return str(mongo.db.gitshots.save(gitshot))
 
 
+@app.route('/install')
+def install():
+    return send_file('install.sh')
+
+
 @app.route('/<ObjectId:gitshot_id>.jpg')
 @requires_auth
-@cache.memoize(3600)  # cache for 1 hour
+@cache.memoize(3600)  # cache in app for 1 hour
 def render_image(gitshot_id):
     gitshot = mongo.db.gitshots.find_one_or_404(gitshot_id)
     img = gitshot.get('img')
@@ -131,51 +136,70 @@ def gitshot(gitshot_id):
     return render_template('commit.html', gitshot=gitshot)
 
 
-@app.route('/<project>/<sha1>.jpg')
+@app.route('/gh/<user>/<project>/<sha1>.jpg')
 @requires_auth
-def get_image_by_sha1(project, sha1):
+def get_image_by_sha1(user, project, sha1):
     gitshot = mongo.db.gitshots.find_one_or_404(
-        {'project': project, 'sha1': sha1},
+        {'project': project, 'sha1': sha1, 'user': user},
         {'img': False})
     return render_image(gitshot['_id'])
 
 
-@app.route('/<project>/<sha1>')
+@app.route('/gh/<user>/<project>/<sha1>')
 @requires_auth
-def gitshot_sha1(project, sha1):
+def github_sha1(user, project, sha1):
     gitshot = mongo.db.gitshots.find_one_or_404(
-        {'project': project, 'sha1': sha1})
+        {'project': project, 'sha1': sha1, 'user': user})
     return render_template('commit.html', gitshot=gitshot)
 
 
-@app.route('/project/<project>/')
+@app.route('/gs/<project>')
 @requires_auth
-def project(project):
+def gitshot_project(project):
     limit = int(request.args.get('limit', 100))
     sort = request.args.get('sort', 'ts')
     gitshots = mongo.db.gitshots.find(
-        {'project': project},
-        {'img': False}
+        {'project': project}, {'img': False}
     ).limit(limit).sort(sort, -1)
+
     if request_wants_json():
         return jsonify(items=[list(gitshots)])
+
     ret = defaultdict(list)
     for gitshot in gitshots:
         ret[gitshot['project']].append(gitshot)
     return render_template('project.html', gitshots=ret)
 
 
-@app.route('/user/<username>/')
+@app.route('/gh/<user>/<project>')
 @requires_auth
-def user_profile(username):
+def github_project(user, project):
+    limit = int(request.args.get('limit', 100))
+    sort = request.args.get('sort', 'ts')
+    gitshots = mongo.db.gitshots.find(
+        {'project': project, 'user': user},
+        {'img': False}
+    ).limit(limit).sort(sort, -1)
+
+    if request_wants_json():
+        return jsonify(items=[list(gitshots)])
+
+    ret = defaultdict(list)
+    for gitshot in gitshots:
+        ret[gitshot['project']].append(gitshot)
+    return render_template('project.html', gitshots=ret)
+
+
+@app.route('/gh/<user>/')
+@requires_auth
+def user_profile(user):
     limit = int(request.args.get('limit', 10))
     sort = request.args.get('sort', 'ts')
-    projects = mongo.db.gitshots.find(
-        {'author': username}).distinct('project')
+    projects = mongo.db.gitshots.find({'user': user}).distinct('project')
     gitshots = []
     for project in projects:
         shots = mongo.db.gitshots.find(
-            {'author': username,
+            {'user': user,
              'project': project},
             {'img': False}
         ).limit(limit).sort(sort, -1)
@@ -183,16 +207,17 @@ def user_profile(username):
 
     if request_wants_json():
         return jsonify(items=list(gitshots))
+
     ret = defaultdict(list)
     for gitshot in gitshots:
         ret[gitshot['project']].append(gitshot)
     return render_template('user.html', gitshots=ret)
 
 
-@app.route('/user/<user>.avi')
+@app.route('/<user>.avi')
 @requires_auth
 def render_video(user):
-    images = mongo.db.gitshots.find({'author': user, 'img': {'$exists': True}})
+    images = mongo.db.gitshots.find({'user': user, 'img': {'$exists': True}})
     if images.count() <= 10:
         frames = 2
     elif images.count() < 100:
@@ -212,9 +237,8 @@ def render_video(user):
 @requires_auth
 @cache.memoize(300)  # cache for five minutes
 def index():
-    projects = mongo.db.gitshots.distinct('project')
-    users = mongo.db.gitshots.distinct('author')
-    return render_template('index.html', projects=projects, users=users)
+    users = mongo.db.gitshots.distinct('user')
+    return render_template('index.html', users=users)
 
 
 if __name__ == "__main__":

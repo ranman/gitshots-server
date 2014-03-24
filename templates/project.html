@@ -3,7 +3,7 @@
 {% block content %}
     {% for project, shots in gitshots.iteritems() %}
         {% if shots|length != 0 %}
-            <h1><a href="/project/{{project}}">{{project}}</a></h1>
+            <h1><a href="/{{shots[0].user}}/{{project}}">{{project}}</a></h1>
             <section class="photos">
                 {% for shot in shots %}
                     <a href="/{{shot._id}}">
