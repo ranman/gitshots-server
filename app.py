@@ -140,7 +140,7 @@ def gitshot(gitshot_id):
 @requires_auth
 def get_image_by_sha1(user, project, sha1):
     gitshot = mongo.db.gitshots.find_one_or_404(
-        {'project': project, 'sha1': sha1, 'user': user},
+        {'project': project, 'sha1': sha1},
         {'img': False})
     return render_image(gitshot['_id'])
 
@@ -149,7 +149,8 @@ def get_image_by_sha1(user, project, sha1):
 @requires_auth
 def github_sha1(user, project, sha1):
     gitshot = mongo.db.gitshots.find_one_or_404(
-        {'project': project, 'sha1': sha1, 'user': user})
+        {'project': project, 'sha1': sha1},
+        {'img': False})
     return render_template('commit.html', gitshot=gitshot)
 
 
