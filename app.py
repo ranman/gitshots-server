@@ -172,7 +172,7 @@ def gitshot_project(project):
     return render_template('project.html', gitshots=ret)
 
 
-@app.route('/<user>/<project>/commits/')
+@app.route('/<user>/<project>/commits')
 @requires_auth
 def github_project(user, project):
     limit = int(request.args.get('limit', 100))
@@ -191,7 +191,7 @@ def github_project(user, project):
     return render_template('project.html', gitshots=ret)
 
 
-@app.route('/<user>/')
+@app.route('/<user>')
 @requires_auth
 def user_profile(user):
     limit = int(request.args.get('limit', 10))
