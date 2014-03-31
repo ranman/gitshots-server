@@ -1,3 +1,28 @@
+# Copyright (c) 2014, Randall Hunt
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice,
+#   this list of conditions and the following disclaimer.
+#
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
 import cStringIO
 import re
 from subprocess import Popen, PIPE
@@ -25,14 +50,6 @@ from PIL import ImageFile
 # we have to set a larger block size for images
 ImageFile.MAXBLOCK = 1920*1080
 
-
-def request_wants_json():
-    jsonstr = 'application/json'
-    best = request.accept_mimetypes.best_match([jsonstr, 'text/html'])
-    return best == jsonstr and \
-        request.accept_mimetypes[best] > request.accept_mimetypes['text/html']
-
-
 app = Flask(__name__)
 app.config.from_object('config')
 
@@ -41,6 +58,13 @@ mongo = PyMongo(app)
 
 _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
 FFMPEG = "ffmpeg -y -f image2pipe -vcodec mjpeg -i - -vcodec mpeg4 -qscale 5 -r {0} {1}.avi"
+
+
+def request_wants_json():
+    jsonstr = 'application/json'
+    best = request.accept_mimetypes.best_match([jsonstr, 'text/html'])
+    return best == jsonstr and \
+        request.accept_mimetypes[best] > request.accept_mimetypes['text/html']
 
 
 def check_auth(username, password):
@@ -117,6 +141,49 @@ def install():
     return send_file('install.sh')
 
 
+@app.route('/<user>/')
+@requires_auth
+def user_profile(user):
+    limit = int(request.args.get('limit', 10))
+    sort = request.args.get('sort', 'ts')
+    projects = mongo.db.gitshots.find({'user': user}).distinct('project')
+    gitshots = []
+    for project in projects:
+        shots = mongo.db.gitshots.find(
+            {'user': user,
+             'project': project},
+            {'img': False}
+        ).limit(limit).sort(sort, -1)
+        gitshots.extend(shots)
+
+    if request_wants_json():
+        return jsonify(items=list(gitshots))
+
+    ret = defaultdict(list)
+    for gitshot in gitshots:
+        ret[gitshot['project']].append(gitshot)
+    return render_template('user.html', gitshots=ret)
+
+
+@app.route('/<user>.avi')
+@requires_auth
+def render_video(user):
+    images = mongo.db.gitshots.find({'user': user, 'img': {'$exists': True}})
+    if images.count() <= 10:
+        frames = 2
+    elif images.count() < 100:
+        frames = 15
+    else:
+        frames = 24
+    cmd = FFMPEG.format(frames, user)
+    p = Popen(cmd.split(), stdin=PIPE)
+    for image in images:
+        p.stdin.write(image['img'])
+    p.stdin.close()
+    p.wait()
+    return send_file(open(user+'.avi'), as_attachment=True)
+
+
 @app.route('/<ObjectId:gitshot_id>.jpg')
 @requires_auth
 @cache.memoize(3600)  # cache in app for 1 hour
@@ -189,49 +256,6 @@ def github_project(user, project):
     for gitshot in gitshots:
         ret[gitshot['project']].append(gitshot)
     return render_template('project.html', gitshots=ret)
-
-
-@app.route('/<user>')
-@requires_auth
-def user_profile(user):
-    limit = int(request.args.get('limit', 10))
-    sort = request.args.get('sort', 'ts')
-    projects = mongo.db.gitshots.find({'user': user}).distinct('project')
-    gitshots = []
-    for project in projects:
-        shots = mongo.db.gitshots.find(
-            {'user': user,
-             'project': project},
-            {'img': False}
-        ).limit(limit).sort(sort, -1)
-        gitshots.extend(shots)
-
-    if request_wants_json():
-        return jsonify(items=list(gitshots))
-
-    ret = defaultdict(list)
-    for gitshot in gitshots:
-        ret[gitshot['project']].append(gitshot)
-    return render_template('user.html', gitshots=ret)
-
-
-@app.route('/<user>.avi')
-@requires_auth
-def render_video(user):
-    images = mongo.db.gitshots.find({'user': user, 'img': {'$exists': True}})
-    if images.count() <= 10:
-        frames = 2
-    elif images.count() < 100:
-        frames = 15
-    else:
-        frames = 24
-    cmd = FFMPEG.format(frames, user)
-    p = Popen(cmd.split(), stdin=PIPE)
-    for image in images:
-        p.stdin.write(image['img'])
-    p.stdin.close()
-    p.wait()
-    return send_file(open(user+'.avi'), as_attachment=True)
 
 
 @app.route('/')
