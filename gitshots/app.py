@@ -51,12 +51,15 @@ from PIL import ImageFile
 ImageFile.MAXBLOCK = 1920*1080
 
 app = Flask(__name__)
-app.config.from_object('config')
+app.config.from_object('gitshots.config')
+app.config.from_envar('GITSHOTS_SETTINGS')
 cache = Cache(app)
 mongo = PyMongo(app)
 
 _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
-FFMPEG = "ffmpeg -y -f image2pipe -vcodec mjpeg -i - -vcodec mpeg4 -qscale 5 -r {0} {1}.avi"
+FFMPEG = app.config.get('ffmpeg_command',
+    "ffmpeg -y -f image2pipe -vcodec mjpeg -i - -vcodec mpeg4 -qscale 5 -r {0} {1}.avi"
+)
 
 
 def request_wants_json():

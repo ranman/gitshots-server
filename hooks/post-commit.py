@@ -78,8 +78,8 @@ def post_gitshot(gitshot):
 def save_gitshot(gitshot):
     if not os.path.exists(failed_path):
         os.makedirs(failed_path)
-        with open(os.path.join(failed_path, gitshot['sha1']+'.json')) as f:
-            f.write(json.dumps(gitshot))
+    with open(os.path.join(failed_path, gitshot['sha1']+'.json')) as f:
+        f.write(json.dumps(gitshot))
 
 
 def get_failures():
