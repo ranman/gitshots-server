@@ -78,16 +78,17 @@ def post_gitshot(gitshot):
 def save_gitshot(gitshot):
     if not os.path.exists(failed_path):
         os.makedirs(failed_path)
-    with open(os.path.join(failed_path, gitshot['sha1']+'.json')) as f:
+    with open(os.path.join(failed_path, gitshot['sha1']+'.json'), 'w') as f:
         f.write(json.dumps(gitshot))
 
 
 def get_failures():
+    gitshots = []
     if os.path.exists(failed_path):
-        gitshots = []
         for fpath in os.listdir(failed_path):
-            with open(fpath) as f:
+            with open(os.path.join(failed_path, fpath)) as f:
                 gitshots.append(json.loads(f.read()))
+    return gitshots
 
 
 def cleanup(gitshot):
@@ -178,7 +179,7 @@ def take_gitshot():
     return imgpath
 
 if __name__ == '__main__':
-    gitshots = get_failures() or []
+    gitshots = get_failures()
     gitshots.append(collect_stats())
     if GITSHOTS_SERVER_URL:
         for gitshot in gitshots:
