@@ -74,7 +74,7 @@ def post_gitshot(gitshot):
         # check if this is failed and cleanup if it is
         cleanup(gitshot)
     except:
-        print("Unable to upload gitshot, saving for later")
+        print("Upload failed, saving {0}".format(gitshot['sha1']))
         save_gitshot(gitshot)
 
 
