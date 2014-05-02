@@ -1,8 +1,17 @@
 #!/usr/bin/env python2.7
 import os
 import sys
+import subprocess
+
+
+def run_command(command):
+    return subprocess.check_output(command.split()).rstrip()
+
+#get the top-level directory for this repo:
+tld = run_command('git rev-parse --show-toplevel')
+
 # if we're rebasing just quit
-if os.path.isdir('.git/rebase-merge'):
+if os.path.isdir(os.path.join(tld,'.git/rebase-merge')):
     sys.exit()
 
 # try to fork as soon as possible to not block shell
@@ -12,7 +21,6 @@ try:
 except AttributeError:
     pass
 
-import subprocess
 import calendar
 import json
 import requests
@@ -34,12 +42,7 @@ if not os.path.exists(os.path.expanduser(GITSHOTS_PATH)):
     os.makedirs(os.path.expanduser(GITSHOTS_PATH))
 
 
-def run_command(command):
-    """Command helper"""
-    return subprocess.check_output(command.split()).rstrip()
 
-#get the top-level directory for this repo:
-tld = run_command('git rev-parse --show-toplevel')
 failed_path = os.path.join(tld, '.git/failed_gitshots')
 
 
