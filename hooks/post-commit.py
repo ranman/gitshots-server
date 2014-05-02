@@ -139,20 +139,21 @@ def collect_stats():
 
 def where():
     # now figure out where we are
-    r = requests.get(LOCATION_URI).json()
-    if r:
-        l = r.get('venue').get('location')
-        where = {
-            'type': 'Point',
-            'coordinates': [l['lng'], l['lat']],
-            'err': '0'
-        }
-        del l['lat']
-        del l['lng']
-        where.update(l)
-        where['ts'] = r['createdAt']
-        return where
-
+    try:
+        r = requests.get(LOCATION_URI).json()
+        if r:
+            l = r.get('venue').get('location')
+            where = {
+                'type': 'Point',
+                'coordinates': [l['lng'], l['lat']],
+                'properties': { 'err': '0' }
+            }
+            del l['lat'], l['lng']
+            where.update(l)
+            where['properties']['ts'] = r['createdAt'] # This needs to be cast to TS
+            return where
+    except:
+        return {}
 
 def file_stats():
     # this command should be empty if this is the first commit
