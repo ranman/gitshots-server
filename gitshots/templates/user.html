@@ -7,7 +7,7 @@
             <section class="photos">
                 {% for shot in shots %}
                     <a href="/gs/{{shot._id}}">
-                        <img width="300" height="168" src="/{{shot._id}}.jpg" title="{{shot.msg}}">
+                        <img width="300" height="168" src="/gs/{{shot._id}}.jpg" title="{{shot.msg}}">
                     </a>
                 {% endfor %}
             </section>
