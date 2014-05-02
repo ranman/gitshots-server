@@ -105,7 +105,7 @@ def page_not_found(e):
     return render_template('404.html'), 404
 
 
-@app.route('/post_image', methods=['POST'])
+@app.route('/api/post_image', methods=['POST'])
 def post_image():
     f = request.files['photo']
     if f:
@@ -122,7 +122,7 @@ def post_image():
     return 400
 
 
-@app.route('/post_commit', methods=['POST'])
+@app.route('/api/post_commit', methods=['POST'])
 def post_commit(gitshot_id):
     data = loads(request.data)
     data['ts'] = datetime.fromtimestamp(data['ts'])
@@ -135,7 +135,7 @@ def post_commit(gitshot_id):
     return str(mongo.db.gitshots.save(data))
 
 
-@app.route('/put_commit/<ObjectId:gitshot_id>', methods=['PUT'])
+@app.route('/api/put_commit/<ObjectId:gitshot_id>', methods=['PUT'])
 def put_commit(gitshot_id):
     data = loads(request.data)
     data['ts'] = datetime.fromtimestamp(data['ts'])
@@ -198,7 +198,7 @@ def render_video(user):
     return send_file(open(user+'.avi'), as_attachment=True)
 
 
-@app.route('/<ObjectId:gitshot_id>.jpg')
+@app.route('/gs/<ObjectId:gitshot_id>.jpg')
 @requires_auth
 @cache.memoize(3600)  # cache in app for 1 hour
 def render_image(gitshot_id):
@@ -210,7 +210,7 @@ def render_image(gitshot_id):
     return response
 
 
-@app.route('/<ObjectId:gitshot_id>')
+@app.route('/gs/<ObjectId:gitshot_id>')
 @requires_auth
 def gitshot(gitshot_id):
     gitshot = mongo.db.gitshots.find_one(ObjectId(gitshot_id))

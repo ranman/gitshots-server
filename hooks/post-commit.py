@@ -29,7 +29,7 @@ from datetime import datetime
 GITSHOTS_PATH = os.getenv('GITSHOTS_PATH', '~/.gitshots/')
 GITSHOTS_SERVER_URL = os.getenv(
     'GITSHOTS_SERVER_URL',
-    'http://gitshots.ranman.org')
+    'http://gitshots.com/api')
 GITSHOTS_IMAGE_CMD = os.getenv(
     'GITSHOTS_IMG_CMD',
     'imagesnap -q ')
