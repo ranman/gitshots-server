@@ -11,7 +11,7 @@ def run_command(command):
 tld = run_command('git rev-parse --show-toplevel')
 
 # if we're rebasing just quit
-if os.path.isdir(os.path.join(tld,'.git/rebase-merge')):
+if os.path.isdir(os.path.join(tld, '.git/rebase-merge')):
     sys.exit()
 
 # try to fork as soon as possible to not block shell
@@ -33,15 +33,10 @@ GITSHOTS_SERVER_URL = os.getenv(
 GITSHOTS_IMAGE_CMD = os.getenv(
     'GITSHOTS_IMG_CMD',
     'imagesnap -q ')
-LOCATION_URI = os.getenv(
-    'LOCATION_URI',
-    'http://where.ranman.org/current_location.json')
-
+LOCATION_URI = os.getenv('LOCATION_URI', '')
 # ensure directory exists
 if not os.path.exists(os.path.expanduser(GITSHOTS_PATH)):
     os.makedirs(os.path.expanduser(GITSHOTS_PATH))
-
-
 
 failed_path = os.path.join(tld, '.git/failed_gitshots')
 
@@ -120,25 +115,26 @@ def collect_stats():
         'ts': int(filename[:10]),
         # grab commit message and chop off the last newline
         'msg': run_command('git log -n 1 HEAD --format=format:%s%n%b'),
-        # get the shaw 1 of this commit
         'sha1': run_command('git rev-parse HEAD'),
-        'branch': run_command('git rev-parse --abbrev-ref HEAD')
+        'branch': run_command('git rev-parse --abbrev-ref HEAD'),
+        'dstats': file_stats()
     }
+    data.update(where())
     data.update(get_project())
-    data['dstats'] = file_stats()
-    data['where'] = where()
     try:
         data['imgpath'] = take_gitshot()
     except:
         print("Unable to take a gitshot! Is your image command configured?")
     with open(imgpath[:-3] + 'json', 'w') as f:
         f.write(json.dumps(data, ensure_ascii=False))
-
     return data
 
 
 def where():
     # now figure out where we are
+    where = {}
+    if not LOCATION_URI:
+        return where
     try:
         r = requests.get(LOCATION_URI).json()
         if r:
@@ -146,14 +142,16 @@ def where():
             where = {
                 'type': 'Point',
                 'coordinates': [l['lng'], l['lat']],
-                'properties': { 'err': '0' }
+                'properties': {'err': '0'}
             }
             del l['lat'], l['lng']
-            where.update(l)
-            where['properties']['ts'] = r['createdAt'] # This needs to be cast to TS
-            return where
+            where['properties'].update(l)
+            where['properties']['ts'] = r['createdAt']
+            where = {'where': where}
     except:
-        return {}
+        print('Unable to grab location data')
+    return where
+
 
 def file_stats():
     # this command should be empty if this is the first commit
