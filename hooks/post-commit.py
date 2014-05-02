@@ -14,13 +14,6 @@ tld = run_command('git rev-parse --show-toplevel')
 if os.path.isdir(os.path.join(tld, '.git/rebase-merge')):
     sys.exit()
 
-# try to fork as soon as possible to not block shell
-try:
-    if os.fork():  # will not work on windows
-        sys.exit()
-except AttributeError:
-    pass
-
 import calendar
 import json
 import requests
@@ -68,9 +61,10 @@ def post_gitshot(gitshot):
         response.raise_for_status()
         # check if this is failed and cleanup if it is
         cleanup(gitshot)
+        return False
     except:
-        print("Upload failed, saving {0}".format(gitshot['sha1']))
         save_gitshot(gitshot)
+        return True
 
 
 def save_gitshot(gitshot):
@@ -182,7 +176,17 @@ def take_gitshot():
 
 if __name__ == '__main__':
     gitshots = get_failures()
-    gitshots.append(collect_stats())
-    if GITSHOTS_SERVER_URL:
-        for gitshot in gitshots:
-            post_gitshot(gitshot)
+    for gitshot in gitshots:
+        if post_gitshot(gitshot):
+            print("Upload failed, saving {0}".format(gitshot['sha1']))
+
+    # try to fork as soon as possible to not block shell
+    try:
+        if os.fork():  # will not work on windows
+            sys.exit()
+    except AttributeError:
+        pass
+
+    gitshot = collect_stats()  # collect the stats
+    if GITSHOTS_SERVER_URL:  # upload them
+        post_gitshot(gitshot)
