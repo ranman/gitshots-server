@@ -126,6 +126,12 @@ def post_image():
 def post_commit(gitshot_id):
     data = loads(request.data)
     data['ts'] = datetime.fromtimestamp(data['ts'])
+    try:
+        if 'where' in data:
+            ts = data['where']['properties']['ts']
+            data['where']['properties']['ts'] = datetime.fromtimestamp(ts)
+    except:
+        pass
     return str(mongo.db.gitshots.save(data))
 
 
@@ -133,6 +139,12 @@ def post_commit(gitshot_id):
 def put_commit(gitshot_id):
     data = loads(request.data)
     data['ts'] = datetime.fromtimestamp(data['ts'])
+    try:
+        if 'where' in data:
+            ts = data['where']['properties']['ts']
+            data['where']['properties']['ts'] = datetime.fromtimestamp(ts)
+    except:
+        pass
     gitshot = mongo.db.gitshots.find_one_or_404(gitshot_id)
     gitshot.update(data)
     return str(mongo.db.gitshots.save(gitshot))
