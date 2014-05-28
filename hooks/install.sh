@@ -7,7 +7,7 @@ mkdir -p ~/.git_template/hooks
 git config --global init.templatedir '~/.git_template/'
 echo "Putting post-commit.py in bin"
 mkdir -p ~/bin
-curl https://raw.githubusercontent.com/ranman/gitshots/master/post-commit.py > ~/bin/post-commit.py
+curl https://raw.githubusercontent.com/ranman/gitshots/master/hooks/post-commit.py > ~/bin/post-commit.py
 echo "Creating post-commit hook"
 cat << EOF > ~/.git_template/hooks/post-commit
 #!/bin/sh
