@@ -52,8 +52,9 @@ from PIL import ImageFile
 ImageFile.MAXBLOCK = 1920*1080
 
 app = Flask(__name__)
-app.config.from_object('gitshots.config')
-app.config.from_envar('GITSHOTS_SETTINGS')
+app.config.from_object('config')
+if os.getenv('GITSHOTS_SETTINGS'):
+    app.config.from_envvar('GITSHOTS_SETTINGS')
 cache = Cache(app)
 mongo = PyMongo(app)
 
@@ -214,7 +215,7 @@ def render_image(gitshot_id):
 @app.route('/gs/<ObjectId:gitshot_id>')
 @requires_auth
 def gitshot(gitshot_id):
-    gitshot = mongo.db.gitshots.find_one(ObjectId(gitshot_id))
+    gitshot = mongo.db.gitshots.find_one(gitshot_id)
     return render_template('commit.html', gitshot=gitshot)
 
 
@@ -227,7 +228,7 @@ def get_image_by_sha1(user, project, sha1):
     return render_image(gitshot['_id'])
 
 
-@app.route('/<user>/<project>/commit/<sha1>')
+@app.route('/<user>/<project>/commit/<sha1>/')
 @requires_auth
 def github_sha1(user, project, sha1):
     gitshot = mongo.db.gitshots.find_one_or_404(
@@ -254,7 +255,7 @@ def gitshot_project(project):
     return render_template('project.html', gitshots=ret)
 
 
-@app.route('/<user>/<project>/commits')
+@app.route('/<user>/<project>/commits/')
 @requires_auth
 def github_project(user, project):
     limit = int(request.args.get('limit', 100))
