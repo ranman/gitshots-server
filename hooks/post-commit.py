@@ -5,7 +5,7 @@ import subprocess
 
 
 def run_command(command):
-    return subprocess.check_output(command.split()).rstrip()
+    return subprocess.check_output(command.split(), shell=True).rstrip()
 
 #get the top-level directory for this repo:
 tld = run_command('git rev-parse --show-toplevel')
@@ -39,10 +39,12 @@ filename = str(calendar.timegm(datetime.now().utctimetuple())) + '.jpg'
 imgpath = os.path.abspath(os.path.expanduser(GITSHOTS_PATH + filename))
 img_command = GITSHOTS_IMAGE_CMD + imgpath
 
-user = run_command('git config github.user')
-if not user:
+try:
+    user = run_command('git config github.user')
+except:
+    import getpass
+    user = getpass.getuser()
     print('run git config --global github.user <user>')
-    sys.exit(1)
 
 
 def post_gitshot(gitshot):
@@ -158,15 +160,16 @@ def file_stats():
     dstats = []
     for line in stats:
         line = line.split('\t')
-        st = {'f': line[2]}
-        # we can't get line diffs on binary files.
-        if '-' in line[:2]:
-            st['+'] = 'binary'
-            st['-'] = 'binary'
-        else:
-            st['+'] = int(line[0])
-            st['-'] = int(line[1])
-        dstats.append(st)
+        if len(line) > 0:
+            st = {'f': line[2]}
+            # we can't get line diffs on binary files.
+            if '-' in line[:2]:
+                st['+'] = 'binary'
+                st['-'] = 'binary'
+            else:
+                st['+'] = int(line[0])
+                st['-'] = int(line[1])
+            dstats.append(st)
     return dstats
 
 
