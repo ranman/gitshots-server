@@ -1,6 +1,6 @@
 web:
   restart: always
-  build: ./web
+  build: ./gitshots
   expose:
     - "8080"
   links:
