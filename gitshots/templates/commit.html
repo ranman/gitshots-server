@@ -1,9 +1,22 @@
 {% extends "base.html" %}
 {% block title %}Commit View{% endblock %}
+{% block meta %}
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@{{gitshot.user}}">
+<meta name="twitter:creator" content="@{{gitshot.user}}">
+<meta name="twitter:title" content="Commit View - Git Shots">
+<meta name="twitter:description" content="Commit: {{gitshot.sha1}}">
+<meta name="twitter:image" content="http://gitshots.com/gs/{{gitshot._id}}.jpg">
+<meta name='twitter:url' content='http://gitshots.com/gs/{{gitshot._id}}">{{gitshot._id}}'/>
+
+{% endblock %}
 {% block content %}
 <h1>{{gitshot.project}}</h1>
 <h2><a href="/">/</a> - <a href="/{{gitshot.user}}">{{gitshot.user}}</a> - <a href="/project/{{gitshot.project}}">{{gitshot.project}}</a>  - <a href="/gs/{{gitshot._id}}">{{gitshot._id}}</a></h2>
+
 <img width=600 src="/gs/{{gitshot._id}}.jpg">
+
 <h3>{{gitshot.msg|commitmsg|safe}}</h3>
 
 {% if gitshot.url %}
