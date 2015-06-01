@@ -1,5 +1,11 @@
 # Gitshots — remember every commit
 
+## Testing Gitshots server with docker-compose
+
+    git clone https://github.com/ranman/gitshots
+    docker-compose build
+    docker-compose up -d
+    docker-compose logs
 
 
 ## Setting up your own Gitshots server
