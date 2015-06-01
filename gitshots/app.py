@@ -154,7 +154,12 @@ def put_commit(gitshot_id):
 
 @app.route('/install')
 def install():
-    return send_file('install.sh')
+    return send_file('hooks/install.sh')
+
+
+@app.route('/post-commit')
+def postcommit():
+    return send_file('hooks/post-commit.py')
 
 
 @app.route('/<user>/')
@@ -237,7 +242,7 @@ def github_sha1(user, project, sha1):
     return render_template('commit.html', gitshot=gitshot)
 
 
-@app.route('/gs/<project>')
+@app.route('/project/<project>')
 @requires_auth
 def gitshot_project(project):
     limit = int(request.args.get('limit', 100))

@@ -5,7 +5,7 @@ import subprocess
 
 
 def run_command(command):
-    return subprocess.check_output(command.split(), shell=True).rstrip()
+    return subprocess.check_output(command.split()).rstrip()
 
 #get the top-level directory for this repo:
 tld = run_command('git rev-parse --show-toplevel')
@@ -26,7 +26,9 @@ GITSHOTS_SERVER_URL = os.getenv(
 GITSHOTS_IMAGE_CMD = os.getenv(
     'GITSHOTS_IMG_CMD',
     'imagesnap -q ')
-LOCATION_URI = os.getenv('LOCATION_URI', '')
+LOCATION_URI = os.getenv('LOCATION_URI', 
+    'http://iplocator.adaofeliz.com/api/location')
+
 # ensure directory exists
 if not os.path.exists(os.path.expanduser(GITSHOTS_PATH)):
     os.makedirs(os.path.expanduser(GITSHOTS_PATH))
@@ -127,25 +129,30 @@ def collect_stats():
 
 
 def where():
+
     # now figure out where we are
     where = {}
+
     if not LOCATION_URI:
         return where
+
     try:
         r = requests.get(LOCATION_URI).json()
         if r:
-            l = r.get('venue').get('location')
+            l = r.get('location')
             where = {
                 'type': 'Point',
-                'coordinates': [l['lng'], l['lat']],
+                'coordinates': [l['longitude'], l['latitude']],
                 'properties': {'err': '0'}
             }
-            del l['lat'], l['lng']
+            del l['latitude'], l['longitude']
             where['properties'].update(l)
-            where['properties']['ts'] = r['createdAt']
+            where['properties']['ts'] = int(filename[:10])
+            where['location'] = r
             where = {'where': where}
     except:
         print('Unable to grab location data')
+
     return where
 
 
