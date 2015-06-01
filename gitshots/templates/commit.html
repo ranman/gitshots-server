@@ -2,9 +2,10 @@
 {% block title %}Commit View{% endblock %}
 {% block content %}
 <h1>{{gitshot.project}}</h1>
-<h2>{{gitshot.user}}</h2>
+<h2><a href="/">/</a> - <a href="/{{gitshot.user}}">{{gitshot.user}}</a> - <a href="/project/{{gitshot.project}}">{{gitshot.project}}</a>  - <a href="/gs/{{gitshot._id}}">{{gitshot._id}}</a></h2>
 <img width=600 src="/gs/{{gitshot._id}}.jpg">
 <h3>{{gitshot.msg|commitmsg|safe}}</h3>
+
 {% if gitshot.url %}
     {% set url = gitshot.url + '/' + 'commit/' + gitshot.sha1 %}
 {% elif gitshot.sha1 %}
@@ -16,25 +17,28 @@
         gitshot.sha1])
     %}
 {% endif %}
-
 <h4><a href="{{url}}">{{gitshot.sha1}}</a></h4>
+
 {% if gitshot.where %}
-    <div id="whereMap" style="height:250px"></div>
-    <script src="/static/lib/OpenLayers.js"></script>
-    <script>
-        map = new OpenLayers.Map("whereMap");
-        map.addLayer(new OpenLayers.Layer.OSM());
-        var markers = new OpenLayers.Layer.Markers( "Markers" );
-        map.addLayer(markers);
-        var size = new OpenLayers.Size(21,25);
-        var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-        var icon = new OpenLayers.Icon('http://www.openlayers.org/dev/img/marker.png',size,offset);
-        var lonLat = new OpenLayers.LonLat({{gitshot.where.coordinates[0]}}, {{gitshot.where.coordinates[1]}}).transform(
-            new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
-        markers.addMarker(new OpenLayers.Marker(lonLat, icon));
-        var zoom = 17;
-        map.setCenter(lonLat, zoom);
-    </script>
+<div id="map-canvas" style="width: 100%; max-width: 600px; min-height: 225px; height: auto;"></div> 
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
+<script>
+    var map;
+    function initialize() {
+    var myLatlng = new google.maps.LatLng({{gitshot.where.coordinates[1]}},{{gitshot.where.coordinates[0]}});
+      var mapOptions = {
+        zoom: 8,
+        center: myLatlng
+      };
+      map = new google.maps.Map(document.getElementById('map-canvas'),
+          mapOptions);
+      var marker = new google.maps.Marker({
+          position: myLatlng,
+          map: map
+          });
+    }
+    google.maps.event.addDomListener(window, 'load', initialize);
+</script>
 {% endif %}
 <h4>Stats</h4>
 {{gitshot.ts.strftime('%Y-%m-%d')}}
