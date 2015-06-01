@@ -1,0 +1,38 @@
+web:
+  restart: always
+  build: ./web
+  expose:
+    - "8080"
+  links:
+    - mongo:mongo
+  volumes:
+    - /usr/src/app/static
+  env_file: .env
+  command: /usr/local/bin/gunicorn -w 2 -b :8080 app:app
+
+nginx:
+  restart: always
+  build: ./nginx/
+  ports:
+    - "80:80"
+  volumes:
+    - /www/static
+  volumes_from:
+    - web
+  links:
+    - web:web
+
+data:
+  restart: always
+  image: mongo:latest
+  volumes:
+    - /var/lib/mongo
+  command: true
+
+mongo:
+  restart: always
+  image: mongo:latest
+  volumes_from:
+    - data
+  ports:
+    - "27017:27017"
