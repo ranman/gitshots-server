@@ -1,6 +1,6 @@
 import os
 
-DEBUG = True
+DEBUG = os.environ.get('GITSHOTS_DEBUG', True)
 
 if os.environ.get('MONGOHQ_URL'):
     MONGO_URI = os.environ.get('MONGOHQ_URL')

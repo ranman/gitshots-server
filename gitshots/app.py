@@ -51,9 +51,11 @@ from PIL import ImageFile
 ImageFile.MAXBLOCK = 1920 * 1080
 
 app = Flask(__name__)
+
 app.config.from_object('config')
 if os.getenv('GITSHOTS_SETTINGS'):
     app.config.from_envvar('GITSHOTS_SETTINGS')
+
 cache = Cache(app)
 mongo = PyMongo(app)
 
@@ -167,6 +169,30 @@ def install():
 @app.route('/post-commit')
 def postcommit():
     return send_file('hooks/post-commit.py')
+
+
+@app.route('/latest/')
+@requires_auth
+def latest():
+    limit = int(request.args.get('limit', 10))
+    sort = request.args.get('sort', 'ts')
+
+    gitshots = []
+    gitshots.extend(
+        mongo.db.gitshots.find(
+            {},
+            {'img': False, 'dstats': False})
+        .limit(limit)
+        .sort(sort, 1))
+
+    if request_wants_json():
+        return jsonify(items=list(gitshots))
+
+    ret = defaultdict(list)
+    for gitshot in gitshots:
+        ret[gitshot['user']].append(gitshot)
+
+    return render_template('latest.html', gitshots=ret)
 
 
 @app.route('/<user>/')

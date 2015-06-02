@@ -148,7 +148,6 @@ def where():
             del l['latitude'], l['longitude']
             where['properties'].update(l)
             where['properties']['ts'] = int(filename[:10])
-            where['location'] = r
             where = {'where': where}
     except:
         print('Unable to grab location data')

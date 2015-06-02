@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Latest View{% endblock %}
+{% block content %}
+    {% for user, shots in gitshots.iteritems() %}
+        {% if shots|length != 0 %}
+            <h1><a href="/">/</a> - <a href="/{{user}}">{{user}}</a></h1>
+            <section class="photos">
+                {% for shot in shots %}
+                    <a href="/gs/{{shot._id}}">
+                        <img width="300" height="168" src="/gs/{{shot._id}}.jpg" title="{{shot.msg}}">
+                    </a>
+                {% endfor %}
+            </section>
+        {% endif %}
+    {% endfor %}
+{% endblock %}
