@@ -36,20 +36,19 @@ from flask import (
     render_template,
     make_response,
     request,
-    jsonify,
     Response,
     send_file
 )
 
 from flask.ext.pymongo import PyMongo
 from flask.ext.cache import Cache
-from bson.json_util import loads
+from bson.json_util import loads, dumps
 from bson import binary, ObjectId
 from PIL import Image
 from PIL import ImageFile
 
 # we have to set a larger block size for images
-ImageFile.MAXBLOCK = 1920*1080
+ImageFile.MAXBLOCK = 1920 * 1080
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -59,9 +58,17 @@ cache = Cache(app)
 mongo = PyMongo(app)
 
 _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
-FFMPEG = app.config.get('ffmpeg_command',
+FFMPEG = app.config.get(
+    'ffmpeg_command',
     "ffmpeg -y -f image2pipe -vcodec mjpeg -i - -vcodec mpeg4 -qscale 5 -r {0} {1}.avi"
 )
+
+
+def jsonify(items):
+    return Response(
+        dumps(items),
+        mimetype='application/json'
+    )
 
 
 def request_wants_json():
@@ -217,7 +224,7 @@ def render_image(gitshot_id):
     return response
 
 
-@app.route('/gs/<ObjectId:gitshot_id>')
+@app.route('/gs/<ObjectId:gitshot_id>/')
 @requires_auth
 def gitshot(gitshot_id):
     gitshot = mongo.db.gitshots.find_one(gitshot_id)
