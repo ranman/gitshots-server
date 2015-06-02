@@ -178,8 +178,12 @@ def latest():
     sort = request.args.get('sort', 'ts')
 
     gitshots = []
-    shots = mongo.db.gitshots.find({},{'img': False}).limit(limit).sort(sort, -1)
-    gitshots.extend(shots)
+    gitshots.extend(
+        mongo.db.gitshots.find(
+            {},
+            {'img': False, 'dstats': False})
+        .limit(limit)
+        .sort(sort, 1))
 
     if request_wants_json():
         return jsonify(items=list(gitshots))
