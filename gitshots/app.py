@@ -169,6 +169,26 @@ def postcommit():
     return send_file('hooks/post-commit.py')
 
 
+@app.route('/latest/')
+@requires_auth
+def latest():
+    limit = int(request.args.get('limit', 10))
+    sort = request.args.get('sort', 'ts')
+
+    gitshots = []
+    shots = mongo.db.gitshots.find({},{'img': False}).limit(limit).sort(sort, -1)
+    gitshots.extend(shots)
+
+    if request_wants_json():
+        return jsonify(items=list(gitshots))
+
+    ret = defaultdict(list)
+    for gitshot in gitshots:
+        ret[gitshot['user']].append(gitshot)
+
+    return render_template('latest.html', gitshots=ret)
+
+
 @app.route('/<user>/')
 @requires_auth
 def user_profile(user):
