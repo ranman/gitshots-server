@@ -51,9 +51,11 @@ from PIL import ImageFile
 ImageFile.MAXBLOCK = 1920 * 1080
 
 app = Flask(__name__)
+
 app.config.from_object('config')
 if os.getenv('GITSHOTS_SETTINGS'):
     app.config.from_envvar('GITSHOTS_SETTINGS')
+
 cache = Cache(app)
 mongo = PyMongo(app)
 
