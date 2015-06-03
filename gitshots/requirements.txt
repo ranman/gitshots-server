@@ -11,3 +11,5 @@ itsdangerous==0.24
 pymongo==2.6.2
 requests==2.7.0
 wsgiref==0.1.2
+slackclient==0.15
+websocket-client==0.32.0
