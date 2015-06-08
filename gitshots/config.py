@@ -8,7 +8,7 @@ if os.environ.get('MONGOHQ_URL'):
 GITSHOTS_BASE_URL = os.environ.get('GITSHOTS_BASE_URL', 'http://gitshots.com')   
 
 MONGO_DBNAME = os.environ.get('MONGO_DB', 'gitshots')
-MONGO_HOST = os.environ.get('MONGO_HOST', 'localhost')
+MONGO_HOST = os.environ.get('MONGO_HOST', '192.168.59.103')
 MONGO_PORT = os.environ.get('MONGO_PORT', 27017)
 MONGO_USERNAME = os.environ.get('MONGO_USERNAME', None)
 MONGO_PASSWORD = os.environ.get('MONGO_PASSWORD', None)

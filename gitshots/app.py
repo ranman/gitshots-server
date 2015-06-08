@@ -195,14 +195,14 @@ def latest():
             {},
             {'img': False, 'dstats': False})
         .limit(limit)
-        .sort(sort, 1))
-
-    if request_wants_json():
-        return jsonify(items=list(gitshots))
+        .sort(sort, -1))
 
     ret = defaultdict(list)
     for gitshot in gitshots:
-        ret[gitshot['user']].append(gitshot)
+        ret[str(gitshot['_id'])].append(gitshot)
+
+    if request_wants_json():
+        return jsonify(ret)
 
     return render_template('latest.html', gitshots=ret)
 
@@ -333,4 +333,4 @@ def index():
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=app.config['DEBUG'], host='0.0.0.0', port=8080, threaded=True)
