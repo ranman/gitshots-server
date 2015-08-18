@@ -26,12 +26,10 @@
 import cStringIO
 import re
 import os
-import time
 from subprocess import Popen, PIPE
 from datetime import datetime
 from collections import defaultdict
 from functools import wraps
-from slackclient import SlackClient
 
 from flask import (
     Flask,
@@ -60,7 +58,6 @@ if os.getenv('GITSHOTS_SETTINGS'):
 
 cache = Cache(app)
 mongo = PyMongo(app)
-slackclient = SlackClient(app.config['SLACK_TOKEN'])
 
 _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
 FFMPEG = app.config.get(
@@ -151,26 +148,17 @@ def post_commit(gitshot_id):
 
 @app.route('/api/put_commit/<ObjectId:gitshot_id>', methods=['PUT'])
 def put_commit(gitshot_id):
-
     data = loads(request.data)
     data['ts'] = datetime.fromtimestamp(data['ts'])
-
     try:
         if 'where' in data:
             ts = data['where']['properties']['ts']
             data['where']['properties']['ts'] = datetime.fromtimestamp(ts)
     except:
         pass
-
     gitshot = mongo.db.gitshots.find_one_or_404(gitshot_id)
     gitshot.update(data)
-
-    ret = str(mongo.db.gitshots.save(gitshot))
-
-    # Notify git channel.
-    slackclient.api_call("chat.postMessage", channel=app.config['SLACK_CHANNEL'], text=app.config['GITSHOTS_BASE_URL'] + '/gs/' + ret)
-
-    return ret
+    return str(mongo.db.gitshots.save(gitshot))
 
 
 @app.route('/install')
@@ -195,14 +183,14 @@ def latest():
             {},
             {'img': False, 'dstats': False})
         .limit(limit)
-        .sort(sort, -1))
+        .sort(sort, 1))
+
+    if request_wants_json():
+        return jsonify(items=list(gitshots))
 
     ret = defaultdict(list)
     for gitshot in gitshots:
-        ret[str(gitshot['_id'])].append(gitshot)
-
-    if request_wants_json():
-        return jsonify(ret)
+        ret[gitshot['user']].append(gitshot)
 
     return render_template('latest.html', gitshots=ret)
 
@@ -333,4 +321,4 @@ def index():
 
 
 if __name__ == "__main__":
-    app.run(debug=app.config['DEBUG'], host='0.0.0.0', port=8080, threaded=True)
+    app.run()

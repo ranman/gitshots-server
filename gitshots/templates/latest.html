@@ -1,13 +1,15 @@
 {% extends "base.html" %}
 {% block title %}Latest View{% endblock %}
 {% block content %}
-    {% for shots in gitshots.iteritems() %}
+    {% for user, shots in gitshots.iteritems() %}
         {% if shots|length != 0 %}
-          <h2><a href="/">/</a> - <a href="/{{shots[1][0].user}}">{{shots[1][0].user}}</a> - <a href="/project/{{shots[1][0].project}}">{{shots[1][0].project}}</a></h2>
+            <h1><a href="/">/</a> - <a href="/{{user}}">{{user}}</a></h1>
             <section class="photos">
-                    <a href="/gs/{{shots[0]}}">
-                        <img width="300" height="168" src="/gs/{{shots[0]}}.jpg" title="{{gitshots[shots[0]].msg}}">
+                {% for shot in shots %}
+                    <a href="/gs/{{shot._id}}">
+                        <img width="300" height="168" src="/gs/{{shot._id}}.jpg" title="{{shot.msg}}">
                     </a>
+                {% endfor %}
             </section>
         {% endif %}
     {% endfor %}
