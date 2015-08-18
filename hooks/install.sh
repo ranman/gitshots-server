@@ -18,5 +18,9 @@ echo "Installing requests dependency, if this fails fix your python or use sudo"
 pip install requests
 echo "Installing imagesnap dependency"
 brew install imagesnap
+echo "Installing CoreLocationCLI dependency"
+git clone git@github.com:fulldecent/corelocationcli.git /tmp/corelocationcli
+xcodebuild -project /tmp/corelocationcli/CoreLocationCLI.xcodeproj
+mv /tmp/corelocationcli/build/Release/CoreLocationCLI /usr/bin
 
 echo "\n\nNow just run git init in any repo you want to use the commit hook in!"

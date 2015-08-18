@@ -41,6 +41,19 @@ Next, in any repository that you want gitshots, you need to add the following li
 
     /usr/bin/env python2.7 PATH_TO_GITSHOTS_REPO/post-commit.py
 
+Next, you should install CoreLocationCLI a command line program to print location information from CoreLocation 
+
+    cd /tmp
+    git clone git@github.com:fulldecent/corelocationcli.git
+    cd corelocationcli
+    xcodebuild
+    mv build/Release/CoreLocationCLI /usr/bin
+
+    USAGE: CoreLocationCLI [options]
+       Displays current location using CoreLocation services.
+       By default, this will continue printing locations until you kill it with Ctrl-C. 
+       More info: https://github.com/fulldecent/corelocationcli
+
 An easy way to ensure your gitshots take for every new repository you create in the future is to add the following file at `/usr/share/git-core/templates/hooks/post-commit` or `/usr/local/share/git-core/templates/hooks/post-commit` depending on your installation of git.
 
     #!/bin/sh
