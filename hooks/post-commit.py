@@ -131,7 +131,7 @@ def where():
 
     if LOCATION_CMD:
         try:
-            location = run_command(GITSHOTS_WHERE_CMD).split('_')
+            location = run_command(LOCATION_CMD).split('_')
             longitude = location[0]
             latitude = location[1]
             where = {
