@@ -42,6 +42,7 @@ Next, in any repository that you want gitshots, you need to add the following li
     /usr/bin/env python2.7 PATH_TO_GITSHOTS_REPO/post-commit.py
 
 Next, you should install CoreLocationCLI a command line program to print location information from CoreLocation 
+
     cd /tmp
     git clone git@github.com:fulldecent/corelocationcli.git
     cd corelocationcli
