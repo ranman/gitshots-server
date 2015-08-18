@@ -20,14 +20,10 @@ import requests
 from datetime import datetime
 
 GITSHOTS_PATH = os.getenv('GITSHOTS_PATH', '~/.gitshots/')
-GITSHOTS_SERVER_URL = os.getenv(
-    'GITSHOTS_SERVER_URL',
-    'http://gitshots.com/api')
-GITSHOTS_IMAGE_CMD = os.getenv(
-    'GITSHOTS_IMG_CMD',
-    'imagesnap -q ')
-LOCATION_URI = os.getenv('LOCATION_URI', 
-    'http://iplocator.adaofeliz.com/api/location')
+GITSHOTS_SERVER_URL = os.getenv('GITSHOTS_SERVER_URL', 'http://gitshots.com/api')
+GITSHOTS_IMAGE_CMD = os.getenv('GITSHOTS_IMG_CMD', 'imagesnap -w 1.0 -q ')
+LOCATION_CMD = os.getenv('LOCATION_CMD', 'CoreLocationCLI -once yes -format %longitude_%latitude')
+LOCATION_URI = os.getenv('LOCATION_URI', 'http://iplocator.adaofeliz.com/api/location')
 
 # ensure directory exists
 if not os.path.exists(os.path.expanduser(GITSHOTS_PATH)):
@@ -133,24 +129,37 @@ def where():
     # now figure out where we are
     where = {}
 
-    if not LOCATION_URI:
-        return where
-
-    try:
-        r = requests.get(LOCATION_URI).json()
-        if r:
-            l = r.get('location')
+    if LOCATION_CMD:
+        try:
+            location = run_command(GITSHOTS_WHERE_CMD).split('_')
+            longitude = location[0]
+            latitude = location[1]
             where = {
                 'type': 'Point',
-                'coordinates': [l['longitude'], l['latitude']],
+                'coordinates': [longitude, latitude],
                 'properties': {'err': '0'}
             }
-            del l['latitude'], l['longitude']
-            where['properties'].update(l)
             where['properties']['ts'] = int(filename[:10])
             where = {'where': where}
-    except:
-        print('Unable to grab location data')
+        except:
+            print('Unable to grab location data using ' + LOCATION_CMD)
+
+    elif LOCATION_URI:
+        try:
+            r = requests.get(LOCATION_URI).json()
+            if r:
+                l = r.get('location')
+                where = {
+                    'type': 'Point',
+                    'coordinates': [l['longitude'], l['latitude']],
+                    'properties': {'err': '0'}
+                }
+                del l['latitude'], l['longitude']
+                where['properties'].update(l)
+                where['properties']['ts'] = int(filename[:10])
+                where = {'where': where}
+        except:
+            print('Unable to grab location data from ' + LOCATION_URI)
 
     return where
 
